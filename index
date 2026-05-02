@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VV DOUBLE 分鏡規劃</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  background: #faf8f5;
+  color: #2c2c2a;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ========== 登入畫面 ========== */
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #faf8f5;
+}
+.login-box {
+  background: #fff;
+  border: 1px solid #e8e4dc;
+  border-radius: 16px;
+  padding: 40px 32px;
+  width: 360px;
+  max-width: 90vw;
+  text-align: center;
+}
+.login-box h1 {
+  font-size: 22px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.login-box .subtitle {
+  font-size: 13px;
+  color: #888780;
+  margin-bottom: 28px;
+}
+.login-box input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d3d1c7;
+  border-radius: 8px;
+  font-size: 15px;
+  margin-bottom: 12px;
+  font-family: inherit;
+}
+.login-box button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  background: #2c2c2a;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.login-box button:hover { background: #444441; }
+.login-box .err {
+  color: #a32d2d;
+  font-size: 13px;
+  margin-top: 8px;
+  min-height: 18px;
+}
+
+/* ========== 主畫面 ========== */
+.app { max-width: 1280px; margin: 0 auto; padding: 24px 20px 60px; }
+
+/* 頂部 Header */
+.header {
+  background: #fff;
+  border: 1px solid #e8e4dc;
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.header-left h1 {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.header-left .meta {
+  font-size: 13px;
+  color: #888780;
+}
+.header-right {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.header-right select,
+.header-right button,
+.btn {
+  padding: 8px 14px;
+  border: 1px solid #d3d1c7;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  color: #2c2c2a;
+  transition: all 0.15s;
+}
+.header-right select:hover,
+.header-right button:hover,
+.btn:hover { background: #f5f2ec; border-color: #888780; }
+.btn-primary {
+  background: #2c2c2a;
+  color: #fff;
+  border-color: #2c2c2a;
+}
+.btn-primary:hover { background: #444441; color: #fff; }
+.btn-danger {
+  color: #a32d2d;
+  border-color: #f0baba;
+}
+.btn-danger:hover { background: #fceaea; }
+
+/* 模式切換 */
+.mode-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.mode-bar .label {
+  font-size: 13px;
+  color: #888780;
+  margin-right: 4px;
+}
+.mode-btn {
+  padding: 8px 16px;
+  border: 1px solid #d3d1c7;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.mode-btn.active {
+  background: #2c2c2a;
+  color: #fff;
+  border-color: #2c2c2a;
+}
+.mode-bar .spacer { flex: 1; }
+
+/* ========== 分鏡表模式 ========== */
+.shots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.shot-card {
+  background: #fff;
+  border: 1px solid #e8e4dc;
+  border-radius: 12px;
+  padding: 12px;
+  cursor: grab;
+  transition: all 0.15s;
+  position: relative;
+}
+.shot-card:hover {
+  border-color: #888780;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.shot-card.dragging { opacity: 0.4; cursor: grabbing; }
+.shot-card.drag-over { border-color: #185fa5; border-style: dashed; }
+
+.shot-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.shot-num {
+  font-size: 12px;
+  font-weight: 500;
+  color: #888780;
+}
+.shot-status {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+.status-todo { background: #faeeda; color: #854f0b; }
+.status-shot { background: #e1f5ee; color: #085041; }
+.status-ok { background: #e6f1fb; color: #0c447c; }
+.status-redo { background: #fcebeb; color: #791f1f; }
+
+.shot-media {
+  background: #f1efe8;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+}
+.shot-media.empty {
+  flex-direction: column;
+  gap: 6px;
+  color: #b4b2a9;
+}
+.shot-media .placeholder-text {
+  font-size: 11px;
+}
+.shot-media video,
+.shot-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.shot-media .duration-badge {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.shot-media .play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.shot-media:hover .play-icon { opacity: 1; }
+.shot-media .play-icon svg { fill: #fff; }
+
+.shot-title {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+.shot-note {
+  font-size: 12px;
+  color: #5f5e5a;
+  line-height: 1.5;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.add-card {
+  background: transparent;
+  border: 1.5px dashed #d3d1c7;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  min-height: 240px;
+  transition: all 0.15s;
+}
+.add-card:hover { border-color: #888780; background: #fafaf7; }
+.add-card .add-inner {
+  text-align: center;
+  color: #888780;
+}
+.add-card .add-inner svg { display: block; margin: 0 auto 6px; }
+.add-card .add-inner span { font-size: 13px; }
+
+/* ========== Reels 滑動預覽模式 ========== */
+.reels-stage {
+  background: #f1efe8;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  min-height: 540px;
+}
+.reels-side {
+  width: 90px;
+  opacity: 0.4;
+  cursor: pointer;
+  text-align: center;
+}
+.reels-side .thumb {
+  background: #fff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.reels-side .thumb video,
+.reels-side .thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.reels-side .label-num {
+  font-size: 11px;
+  color: #888780;
+}
+.reels-main {
+  width: 280px;
+  max-width: 90vw;
+}
+.reels-frame {
+  background: #1a1a1a;
+  border-radius: 28px;
+  padding: 8px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+}
+.reels-screen {
+  background: #2a2a2a;
+  border-radius: 22px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.reels-screen video,
+.reels-screen img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+.reels-overlay {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px;
+  pointer-events: none;
+}
+.reels-top, .reels-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.reels-pill {
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+}
+.reels-bottom-text {
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  width: 100%;
+}
+.reels-bottom-text .t-title {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.reels-bottom-text .t-note {
+  font-size: 12px;
+  opacity: 0.92;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.reels-empty {
+  color: #888;
+  font-size: 13px;
+  text-align: center;
+  width: 100%;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reels-progress {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.reels-progress .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #b4b2a9;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.reels-progress .dot.active {
+  width: 22px;
+  border-radius: 3px;
+  background: #2c2c2a;
+}
+
+.reels-info {
+  background: #fff;
+  border: 1px solid #e8e4dc;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 16px;
+}
+.reels-info .info-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.reels-info .info-title { font-size: 15px; font-weight: 500; }
+.reels-info .info-note {
+  font-size: 13px;
+  color: #5f5e5a;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+/* ========== Modal ========== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: #fff;
+  border-radius: 16px;
+  width: 480px;
+  max-width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px;
+}
+.modal-box h2 {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.modal-box .modal-sub {
+  font-size: 13px;
+  color: #888780;
+  margin-bottom: 20px;
+}
+.modal-box label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #2c2c2a;
+  margin-bottom: 6px;
+  margin-top: 16px;
+}
+.modal-box label:first-of-type { margin-top: 0; }
+.modal-box input[type="text"],
+.modal-box textarea,
+.modal-box select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d3d1c7;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+}
+.modal-box textarea { min-height: 100px; }
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+/* 比例選擇器 */
+.ratio-picker {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.ratio-option {
+  border: 1px solid #d3d1c7;
+  border-radius: 8px;
+  padding: 12px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ratio-option:hover { border-color: #888780; }
+.ratio-option.selected {
+  border-color: #185fa5;
+  border-width: 2px;
+  background: #e6f1fb;
+}
+.ratio-option .ratio-shape {
+  background: #888780;
+  margin: 0 auto 8px;
+  border-radius: 3px;
+}
+.ratio-option.selected .ratio-shape { background: #185fa5; }
+.ratio-option .ratio-label {
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.ratio-option .ratio-platform {
+  font-size: 10px;
+  color: #888780;
+}
+.ratio-option.selected .ratio-platform { color: #185fa5; }
+
+/* 上傳區 */
+.upload-area {
+  border: 2px dashed #d3d1c7;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: #fafaf7;
+}
+.upload-area:hover { border-color: #185fa5; background: #f0f7ff; }
+.upload-area .upload-text {
+  font-size: 13px;
+  color: #5f5e5a;
+  margin-bottom: 4px;
+}
+.upload-area .upload-hint {
+  font-size: 11px;
+  color: #888780;
+}
+.upload-progress {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #5f5e5a;
+}
+.preview-area {
+  margin-top: 12px;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f1efe8;
+}
+.preview-area video,
+.preview-area img {
+  width: 100%;
+  display: block;
+  max-height: 300px;
+  object-fit: contain;
+}
+.preview-clear {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* 狀態選擇器 */
+.status-picker {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.status-option {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.status-option.todo { background: #faeeda; color: #854f0b; }
+.status-option.shot { background: #e1f5ee; color: #085041; }
+.status-option.ok { background: #e6f1fb; color: #0c447c; }
+.status-option.redo { background: #fcebeb; color: #791f1f; }
+.status-option.selected { border-color: currentColor; box-shadow: 0 0 0 2px rgba(0,0,0,0.05); }
+
+/* 空狀態 */
+.empty-state {
+  background: #fff;
+  border: 1px dashed #d3d1c7;
+  border-radius: 12px;
+  padding: 60px 20px;
+  text-align: center;
+  color: #888780;
+}
+.empty-state h3 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #2c2c2a;
+  margin-bottom: 8px;
+}
+.empty-state p { font-size: 13px; margin-bottom: 16px; }
+
+/* Toast 通知 */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2c2c2a;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+/* 唯讀模式 banner */
+.readonly-banner {
+  background: #e6f1fb;
+  color: #0c447c;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  text-align: center;
+  border: 1px solid #b5d4f4;
+}
+
+/* RWD */
+@media (max-width: 600px) {
+  .app { padding: 16px 12px 40px; }
+  .header { padding: 14px 16px; }
+  .shots-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+  .reels-side { display: none; }
+  .modal-box { padding: 20px; }
+  .ratio-picker { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- 登入畫面 -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <h1>VV DOUBLE 分鏡規劃</h1>
+    <p class="subtitle">請輸入管理者密碼</p>
+    <input type="password" id="loginPwd" placeholder="密碼" autofocus>
+    <button id="loginBtn">登入</button>
+    <div class="err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- 主畫面 -->
+<div id="mainApp" class="app" style="display:none;">
+
+  <div id="readonlyBanner" class="readonly-banner" style="display:none;">
+    👁 你正在以「唯讀模式」瀏覽，無法編輯內容
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>VV DOUBLE 分鏡規劃</h1>
+      <div class="meta" id="projectMeta">尚未選擇專案</div>
+    </div>
+    <div class="header-right" id="headerRight">
+      <select id="projectSelect"></select>
+      <button class="btn" id="newProjectBtn">+ 新專案</button>
+      <button class="btn" id="shareBtn">複製分享連結</button>
+      <button class="btn btn-danger" id="deleteProjectBtn">刪除專案</button>
+    </div>
+  </div>
+
+  <!-- 模式切換 -->
+  <div class="mode-bar" id="modeBar">
+    <span class="label">檢視模式：</span>
+    <button class="mode-btn active" data-mode="grid">分鏡表</button>
+    <button class="mode-btn" data-mode="reels">Reels 滑動預覽</button>
+    <span class="spacer"></span>
+    <button class="btn btn-primary" id="addShotBtn">+ 新增分鏡</button>
+  </div>
+
+  <!-- 內容區 -->
+  <div id="content"></div>
+</div>
+
+<!-- 新專案 Modal -->
+<div class="modal-overlay" id="newProjectModal">
+  <div class="modal-box">
+    <h2>建立新專案</h2>
+    <p class="modal-sub">選擇影片比例後，整個專案的所有分鏡會用同一比例顯示</p>
+
+    <label>專案名稱</label>
+    <input type="text" id="newProjectName" placeholder="例如：VV × 婉滋 Reels">
+
+    <label>影片比例</label>
+    <div class="ratio-picker" id="ratioPicker">
+      <div class="ratio-option selected" data-ratio="9:16">
+        <div class="ratio-shape" style="width:18px; height:32px;"></div>
+        <div class="ratio-label">9:16</div>
+        <div class="ratio-platform">Reels / 抖音</div>
+      </div>
+      <div class="ratio-option" data-ratio="16:9">
+        <div class="ratio-shape" style="width:36px; height:20px; margin-top:6px;"></div>
+        <div class="ratio-label">16:9</div>
+        <div class="ratio-platform">YouTube</div>
+      </div>
+      <div class="ratio-option" data-ratio="1:1">
+        <div class="ratio-shape" style="width:28px; height:28px; margin-top:2px;"></div>
+        <div class="ratio-label">1:1</div>
+        <div class="ratio-platform">IG 貼文</div>
+      </div>
+      <div class="ratio-option" data-ratio="4:3">
+        <div class="ratio-shape" style="width:32px; height:24px; margin-top:4px;"></div>
+        <div class="ratio-label">4:3</div>
+        <div class="ratio-platform">舊式</div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" data-close-modal="newProjectModal">取消</button>
+      <button class="btn btn-primary" id="createProjectBtn">建立</button>
+    </div>
+  </div>
+</div>
+
+<!-- 分鏡編輯 Modal -->
+<div class="modal-overlay" id="shotModal">
+  <div class="modal-box">
+    <h2 id="shotModalTitle">新增分鏡</h2>
+    <p class="modal-sub" id="shotModalSub">填寫分鏡資訊</p>
+
+    <label>標題</label>
+    <input type="text" id="shotTitle" placeholder="例如：刺繡牛仔外套近拍">
+
+    <label>影片或參考圖</label>
+    <div class="upload-area" id="uploadArea">
+      <div class="upload-text">點此上傳影片或圖片</div>
+      <div class="upload-hint">影片 ≤20MB（自動壓縮 / 建議短片）/ 圖片 ≤5MB</div>
+    </div>
+    <input type="file" id="fileInput" accept="video/*,image/*" style="display:none;">
+    <div class="upload-progress" id="uploadProgress" style="display:none;"></div>
+    <div class="preview-area" id="previewArea" style="display:none;">
+      <button class="preview-clear" id="previewClearBtn" type="button">✕</button>
+      <div id="previewContent"></div>
+    </div>
+
+    <label>補充文字（運鏡、重點、對白）</label>
+    <textarea id="shotNote" placeholder="例如：慢慢推鏡，對焦在刺繡細節。建議用自然光側光。"></textarea>
+
+    <label>狀態</label>
+    <div class="status-picker" id="statusPicker">
+      <div class="status-option todo selected" data-status="todo">待拍</div>
+      <div class="status-option shot" data-status="shot">已拍</div>
+      <div class="status-option ok" data-status="ok">確認 OK</div>
+      <div class="status-option redo" data-status="redo">重拍</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="deleteShotBtn" style="display:none;">刪除</button>
+      <button class="btn" data-close-modal="shotModal">取消</button>
+      <button class="btn btn-primary" id="saveShotBtn">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 影片放大檢視 Modal -->
+<div class="modal-overlay" id="viewerModal">
+  <div class="modal-box" style="background: transparent; padding: 0; max-width: 90vw; width: auto;">
+    <div id="viewerContent" style="position: relative;"></div>
+    <div style="text-align: center; margin-top: 12px;">
+      <button class="btn" data-close-modal="viewerModal" style="background: rgba(255,255,255,0.9);">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+ * VV DOUBLE 分鏡規劃工具 v1
+ * Firebase + GitHub Pages 單檔 HTML
+ * ============================================================ */
+
+// ========== Firebase 設定 ==========
+const firebaseConfig = {
+  apiKey: "AIzaSyDFP_pu6oWSFdKWF64J-0PDQCujRKlqiNs",
+  authDomain: "vvdouble-storyboard.firebaseapp.com",
+  databaseURL: "https://vvdouble-storyboard-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "vvdouble-storyboard",
+  storageBucket: "vvdouble-storyboard.firebasestorage.app",
+  messagingSenderId: "505264128604",
+  appId: "1:505264128604:web:ace4b7eaf550ddc9e3dc99"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const storage = firebase.storage();
+
+// ========== 設定 ==========
+const PASSWORD = 'vvdoubles2';
+const MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 20MB
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;  // 5MB
+
+// ========== 全域狀態 ==========
+let currentProjectId = null;
+let projects = {};         // { projectId: { name, ratio, shots: { shotId: {...} } } }
+let currentMode = 'grid';  // 'grid' | 'reels'
+let currentReelIndex = 0;
+let isReadonly = false;
+let editingShotId = null;
+let pendingMediaData = null; // 編輯分鏡時暫存的媒體資料
+
+// ========== 工具函數 ==========
+function $(id) { return document.getElementById(id); }
+function showToast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+function ratioToCss(ratio) {
+  // '9:16' → '9 / 16'
+  return ratio.replace(':', ' / ');
+}
+function statusLabel(s) {
+  return { todo:'待拍', shot:'已拍', ok:'確認 OK', redo:'重拍' }[s] || '待拍';
+}
+function getQueryParam(name) {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name);
+}
+
+// ========== 進入點：判斷模式 ==========
+function init() {
+  const sharedProject = getQueryParam('p');
+  const view = getQueryParam('view');
+
+  if (sharedProject && view === 'readonly') {
+    // 唯讀模式：直接進入，不需密碼
+    isReadonly = true;
+    $('loginScreen').style.display = 'none';
+    $('mainApp').style.display = 'block';
+    $('readonlyBanner').style.display = 'block';
+    // 隱藏所有編輯按鈕
+    $('newProjectBtn').style.display = 'none';
+    $('shareBtn').style.display = 'none';
+    $('deleteProjectBtn').style.display = 'none';
+    $('addShotBtn').style.display = 'none';
+    $('projectSelect').disabled = true;
+    loadProjects(sharedProject);
+  } else {
+    // 管理者模式：需密碼
+    if (sessionStorage.getItem('storyboard_logged_in') === 'true') {
+      enterApp();
+    } else {
+      showLogin();
+    }
+  }
+}
+
+function showLogin() {
+  $('loginScreen').style.display = 'flex';
+  $('mainApp').style.display = 'none';
+  $('loginPwd').focus();
+}
+
+function enterApp() {
+  $('loginScreen').style.display = 'none';
+  $('mainApp').style.display = 'block';
+  loadProjects();
+}
+
+// ========== 登入 ==========
+$('loginBtn').addEventListener('click', tryLogin);
+$('loginPwd').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') tryLogin();
+});
+function tryLogin() {
+  const v = $('loginPwd').value;
+  if (v === PASSWORD) {
+    sessionStorage.setItem('storyboard_logged_in', 'true');
+    enterApp();
+  } else {
+    $('loginErr').textContent = '密碼錯誤';
+    $('loginPwd').value = '';
+  }
+}
+
+// ========== 載入專案 ==========
+function loadProjects(forceProjectId) {
+  db.ref('/projects').on('value', (snap) => {
+    projects = snap.val() || {};
+    renderProjectSelect(forceProjectId);
+  }, (err) => {
+    showToast('Firebase 連線失敗：' + err.message);
+  });
+}
+
+function renderProjectSelect(forceProjectId) {
+  const sel = $('projectSelect');
+  const ids = Object.keys(projects);
+
+  sel.innerHTML = '';
+
+  if (ids.length === 0) {
+    sel.innerHTML = '<option>尚無專案</option>';
+    currentProjectId = null;
+    renderEmpty();
+    return;
+  }
+
+  ids.forEach(id => {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = projects[id].name + ' (' + projects[id].ratio + ')';
+    sel.appendChild(opt);
+  });
+
+  // 決定要顯示的專案
+  if (forceProjectId && projects[forceProjectId]) {
+    currentProjectId = forceProjectId;
+  } else if (!currentProjectId || !projects[currentProjectId]) {
+    currentProjectId = ids[0];
+  }
+  sel.value = currentProjectId;
+
+  renderProject();
+}
+
+$('projectSelect').addEventListener('change', (e) => {
+  currentProjectId = e.target.value;
+  currentReelIndex = 0;
+  renderProject();
+});
+
+function renderEmpty() {
+  $('projectMeta').textContent = '尚未建立任何專案';
+  $('content').innerHTML = `
+    <div class="empty-state">
+      <h3>還沒有任何分鏡專案</h3>
+      <p>建立第一個專案，開始規劃你的拍攝內容</p>
+      ${isReadonly ? '' : '<button class="btn btn-primary" onclick="document.getElementById(\'newProjectBtn\').click()">+ 建立新專案</button>'}
+    </div>
+  `;
+}
+
+function renderProject() {
+  if (!currentProjectId || !projects[currentProjectId]) {
+    renderEmpty();
+    return;
+  }
+  const p = projects[currentProjectId];
+  const shots = p.shots ? Object.values(p.shots) : [];
+  $('projectMeta').textContent = `${p.name} · ${p.ratio} · 共 ${shots.length} 個分鏡`;
+
+  if (currentMode === 'grid') {
+    renderGrid();
+  } else {
+    renderReels();
+  }
+}
+
+// ========== 分鏡表模式 ==========
+function getSortedShots() {
+  const p = projects[currentProjectId];
+  if (!p || !p.shots) return [];
+  return Object.entries(p.shots)
+    .map(([id, s]) => ({ id, ...s }))
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+}
+
+function renderGrid() {
+  const p = projects[currentProjectId];
+  const shots = getSortedShots();
+  const ratioCss = ratioToCss(p.ratio);
+
+  let html = '<div class="shots-grid">';
+
+  shots.forEach((s, idx) => {
+    const num = String(idx + 1).padStart(2, '0');
+    const statusClass = 'status-' + (s.status || 'todo');
+    const statusText = statusLabel(s.status);
+
+    let mediaHtml = '';
+    if (s.mediaUrl) {
+      if (s.mediaType === 'video') {
+        const dur = s.duration ? `<span class="duration-badge">${formatDuration(s.duration)}</span>` : '';
+        mediaHtml = `
+          <div class="shot-media" style="aspect-ratio: ${ratioCss};" data-action="view-media" data-shot-id="${s.id}">
+            <video src="${escapeHtml(s.mediaUrl)}" muted preload="metadata"></video>
+            <div class="play-icon"><svg width="14" height="14" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+            ${dur}
+          </div>`;
+      } else {
+        mediaHtml = `
+          <div class="shot-media" style="aspect-ratio: ${ratioCss};" data-action="view-media" data-shot-id="${s.id}">
+            <img src="${escapeHtml(s.mediaUrl)}" alt="">
+          </div>`;
+      }
+    } else {
+      mediaHtml = `
+        <div class="shot-media empty" style="aspect-ratio: ${ratioCss};">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <span class="placeholder-text">尚未上傳</span>
+        </div>`;
+    }
+
+    html += `
+      <div class="shot-card" data-shot-id="${s.id}" ${isReadonly ? '' : 'draggable="true"'}>
+        <div class="shot-head">
+          <span class="shot-num">#${num}</span>
+          <span class="shot-status ${statusClass}">${statusText}</span>
+        </div>
+        ${mediaHtml}
+        <div class="shot-title">${escapeHtml(s.title || '(未命名分鏡)')}</div>
+        ${s.note ? `<div class="shot-note">${escapeHtml(s.note)}</div>` : ''}
+      </div>`;
+  });
+
+  if (!isReadonly) {
+    html += `
+      <div class="add-card" id="addCard">
+        <div class="add-inner">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span>新增分鏡</span>
+        </div>
+      </div>`;
+  }
+
+  html += '</div>';
+  $('content').innerHTML = html;
+
+  attachGridEvents();
+}
+
+function attachGridEvents() {
+  // 卡片點擊
+  document.querySelectorAll('.shot-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      // 如果點擊媒體區塊，開放大檢視
+      const mediaEl = e.target.closest('[data-action="view-media"]');
+      if (mediaEl) {
+        e.stopPropagation();
+        viewMedia(mediaEl.dataset.shotId);
+        return;
+      }
+      // 否則開啟編輯
+      if (!isReadonly) {
+        openShotModal(card.dataset.shotId);
+      }
+    });
+
+    // 拖拉排序
+    if (!isReadonly) {
+      attachDragEvents(card);
+    }
+  });
+
+  // 新增按鈕
+  const addCard = $('addCard');
+  if (addCard) {
+    addCard.addEventListener('click', () => openShotModal());
+  }
+}
+
+function attachDragEvents(card) {
+  card.addEventListener('dragstart', (e) => {
+    card.classList.add('dragging');
+    e.dataTransfer.setData('text/plain', card.dataset.shotId);
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  card.addEventListener('dragend', () => {
+    card.classList.remove('dragging');
+    document.querySelectorAll('.shot-card').forEach(c => c.classList.remove('drag-over'));
+  });
+  card.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    card.classList.add('drag-over');
+  });
+  card.addEventListener('dragleave', () => {
+    card.classList.remove('drag-over');
+  });
+  card.addEventListener('drop', (e) => {
+    e.preventDefault();
+    card.classList.remove('drag-over');
+    const draggedId = e.dataTransfer.getData('text/plain');
+    const targetId = card.dataset.shotId;
+    if (draggedId && draggedId !== targetId) {
+      reorderShots(draggedId, targetId);
+    }
+  });
+}
+
+function reorderShots(draggedId, targetId) {
+  const shots = getSortedShots();
+  const draggedIdx = shots.findIndex(s => s.id === draggedId);
+  const targetIdx = shots.findIndex(s => s.id === targetId);
+  if (draggedIdx < 0 || targetIdx < 0) return;
+
+  const [dragged] = shots.splice(draggedIdx, 1);
+  shots.splice(targetIdx, 0, dragged);
+
+  // 寫回所有 order
+  const updates = {};
+  shots.forEach((s, idx) => {
+    updates[`/projects/${currentProjectId}/shots/${s.id}/order`] = idx;
+  });
+  db.ref().update(updates);
+}
+
+function formatDuration(seconds) {
+  if (!seconds || isNaN(seconds)) return '';
+  const m = Math.floor(seconds / 60);
+  const s = Math.round(seconds % 60);
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+
+// ========== Reels 滑動模式 ==========
+function renderReels() {
+  const p = projects[currentProjectId];
+  const shots = getSortedShots();
+
+  if (shots.length === 0) {
+    $('content').innerHTML = `
+      <div class="empty-state">
+        <h3>這個專案還沒有任何分鏡</h3>
+        <p>切換到「分鏡表」模式新增第一個分鏡</p>
+      </div>`;
+    return;
+  }
+
+  if (currentReelIndex >= shots.length) currentReelIndex = 0;
+  const cur = shots[currentReelIndex];
+  const prev = currentReelIndex > 0 ? shots[currentReelIndex - 1] : null;
+  const next = currentReelIndex < shots.length - 1 ? shots[currentReelIndex + 1] : null;
+  const ratioCss = ratioToCss(p.ratio);
+
+  let mainMediaHtml = '';
+  if (cur.mediaUrl) {
+    if (cur.mediaType === 'video') {
+      mainMediaHtml = `<video src="${escapeHtml(cur.mediaUrl)}" controls playsinline></video>`;
+    } else {
+      mainMediaHtml = `<img src="${escapeHtml(cur.mediaUrl)}" alt="">`;
+    }
+  } else {
+    mainMediaHtml = `<div class="reels-empty">尚未上傳影片或圖片</div>`;
+  }
+
+  function sideThumb(s, idx) {
+    if (!s) return '<div class="reels-side" style="visibility:hidden;"></div>';
+    let inner = '';
+    if (s.mediaUrl) {
+      if (s.mediaType === 'video') {
+        inner = `<video src="${escapeHtml(s.mediaUrl)}" muted preload="metadata"></video>`;
+      } else {
+        inner = `<img src="${escapeHtml(s.mediaUrl)}" alt="">`;
+      }
+    } else {
+      inner = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b4b2a9" stroke-width="1.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+    }
+    const num = String(idx + 1).padStart(2, '0');
+    return `
+      <div class="reels-side" data-reel-jump="${idx}">
+        <div class="thumb" style="aspect-ratio: ${ratioCss};">${inner}</div>
+        <div class="label-num">#${num}</div>
+      </div>`;
+  }
+
+  const prevIdx = currentReelIndex - 1;
+  const nextIdx = currentReelIndex + 1;
+  const num = String(currentReelIndex + 1).padStart(2, '0');
+  const total = shots.length;
+  const statusClass = 'status-' + (cur.status || 'todo');
+
+  let progressHtml = '<div class="reels-progress">';
+  shots.forEach((_, i) => {
+    progressHtml += `<div class="dot ${i === currentReelIndex ? 'active' : ''}" data-reel-jump="${i}"></div>`;
+  });
+  progressHtml += '</div>';
+
+  $('content').innerHTML = `
+    <div class="reels-stage">
+      ${sideThumb(prev, prevIdx)}
+      <div class="reels-main">
+        <div class="reels-frame">
+          <div class="reels-screen" style="aspect-ratio: ${ratioCss};">
+            ${mainMediaHtml}
+            <div class="reels-overlay">
+              <div class="reels-top">
+                <span class="reels-pill">#${num} / ${total}</span>
+                <span class="reels-pill">${statusLabel(cur.status)}</span>
+              </div>
+              <div class="reels-bottom">
+                <div class="reels-bottom-text">
+                  <div class="t-title">${escapeHtml(cur.title || '(未命名分鏡)')}</div>
+                  ${cur.note ? `<div class="t-note">${escapeHtml(cur.note)}</div>` : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        ${progressHtml}
+      </div>
+      ${sideThumb(next, nextIdx)}
+    </div>
+
+    <div class="reels-info">
+      <div class="info-head">
+        <span class="info-title">分鏡 #${num}：${escapeHtml(cur.title || '(未命名分鏡)')}</span>
+        <span class="shot-status ${statusClass}">${statusLabel(cur.status)}</span>
+      </div>
+      ${cur.note ? `<div class="info-note">${escapeHtml(cur.note)}</div>` : '<div class="info-note" style="color:#b4b2a9;">（無補充文字）</div>'}
+      ${isReadonly ? '' : `
+        <div style="margin-top:14px; display:flex; gap:8px; flex-wrap: wrap;">
+          <button class="btn" id="reelsPrevBtn" ${prevIdx < 0 ? 'disabled' : ''}>← 上一個</button>
+          <button class="btn" id="reelsNextBtn" ${nextIdx >= total ? 'disabled' : ''}>下一個 →</button>
+          <button class="btn btn-primary" id="reelsEditBtn">編輯這個分鏡</button>
+        </div>`}
+      ${isReadonly ? `
+        <div style="margin-top:14px; display:flex; gap:8px; flex-wrap: wrap;">
+          <button class="btn" id="reelsPrevBtn" ${prevIdx < 0 ? 'disabled' : ''}>← 上一個</button>
+          <button class="btn" id="reelsNextBtn" ${nextIdx >= total ? 'disabled' : ''}>下一個 →</button>
+        </div>` : ''}
+    </div>
+  `;
+
+  attachReelsEvents();
+}
+
+function attachReelsEvents() {
+  document.querySelectorAll('[data-reel-jump]').forEach(el => {
+    el.addEventListener('click', () => {
+      currentReelIndex = parseInt(el.dataset.reelJump);
+      renderReels();
+    });
+  });
+  const prevBtn = $('reelsPrevBtn');
+  const nextBtn = $('reelsNextBtn');
+  const editBtn = $('reelsEditBtn');
+  if (prevBtn) prevBtn.addEventListener('click', () => {
+    if (currentReelIndex > 0) { currentReelIndex--; renderReels(); }
+  });
+  if (nextBtn) nextBtn.addEventListener('click', () => {
+    const shots = getSortedShots();
+    if (currentReelIndex < shots.length - 1) { currentReelIndex++; renderReels(); }
+  });
+  if (editBtn) editBtn.addEventListener('click', () => {
+    const shots = getSortedShots();
+    if (shots[currentReelIndex]) openShotModal(shots[currentReelIndex].id);
+  });
+}
+
+// ========== 模式切換 ==========
+$('modeBar').addEventListener('click', (e) => {
+  const btn = e.target.closest('.mode-btn');
+  if (!btn) return;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentMode = btn.dataset.mode;
+  renderProject();
+});
+
+// ========== 新專案 Modal ==========
+$('newProjectBtn').addEventListener('click', () => {
+  $('newProjectName').value = '';
+  document.querySelectorAll('.ratio-option').forEach(el => el.classList.remove('selected'));
+  document.querySelector('.ratio-option[data-ratio="9:16"]').classList.add('selected');
+  $('newProjectModal').classList.add('show');
+  $('newProjectName').focus();
+});
+
+$('ratioPicker').addEventListener('click', (e) => {
+  const opt = e.target.closest('.ratio-option');
+  if (!opt) return;
+  document.querySelectorAll('.ratio-option').forEach(el => el.classList.remove('selected'));
+  opt.classList.add('selected');
+});
+
+$('createProjectBtn').addEventListener('click', () => {
+  const name = $('newProjectName').value.trim();
+  if (!name) {
+    showToast('請輸入專案名稱');
+    return;
+  }
+  const ratio = document.querySelector('.ratio-option.selected').dataset.ratio;
+  const newId = uid();
+  db.ref(`/projects/${newId}`).set({
+    name: name,
+    ratio: ratio,
+    createdAt: Date.now()
+  }).then(() => {
+    currentProjectId = newId;
+    closeModal('newProjectModal');
+    showToast('已建立專案');
+  }).catch(err => showToast('建立失敗：' + err.message));
+});
+
+// ========== 刪除專案 ==========
+$('deleteProjectBtn').addEventListener('click', () => {
+  if (!currentProjectId) return;
+  const p = projects[currentProjectId];
+  if (!confirm(`確定要刪除「${p.name}」嗎？\n所有分鏡和影片都會被刪除，無法復原。`)) return;
+
+  // 先刪 Storage 裡的檔案
+  const shots = p.shots ? Object.values(p.shots) : [];
+  const deletePromises = shots
+    .filter(s => s.storagePath)
+    .map(s => storage.ref(s.storagePath).delete().catch(() => {}));
+
+  Promise.all(deletePromises).then(() => {
+    return db.ref(`/projects/${currentProjectId}`).remove();
+  }).then(() => {
+    currentProjectId = null;
+    showToast('已刪除專案');
+  }).catch(err => showToast('刪除失敗：' + err.message));
+});
+
+// ========== 分享連結 ==========
+$('shareBtn').addEventListener('click', () => {
+  if (!currentProjectId) {
+    showToast('請先選擇一個專案');
+    return;
+  }
+  const url = `${window.location.origin}${window.location.pathname}?p=${currentProjectId}&view=readonly`;
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('唯讀分享連結已複製到剪貼簿');
+  }).catch(() => {
+    prompt('複製這個連結分享給夥伴：', url);
+  });
+});
+
+// ========== 分鏡 Modal ==========
+$('addShotBtn').addEventListener('click', () => {
+  if (!currentProjectId) {
+    showToast('請先建立或選擇一個專案');
+    return;
+  }
+  openShotModal();
+});
+
+function openShotModal(shotId) {
+  if (!currentProjectId) return;
+  editingShotId = shotId || null;
+  pendingMediaData = null;
+
+  const isEdit = !!shotId;
+  $('shotModalTitle').textContent = isEdit ? '編輯分鏡' : '新增分鏡';
+  $('shotModalSub').textContent = isEdit ? '修改這個分鏡的內容' : '填寫分鏡資訊';
+  $('deleteShotBtn').style.display = isEdit ? 'inline-block' : 'none';
+
+  // 重置表單
+  $('shotTitle').value = '';
+  $('shotNote').value = '';
+  $('uploadProgress').style.display = 'none';
+  $('previewArea').style.display = 'none';
+  $('previewContent').innerHTML = '';
+  document.querySelectorAll('.status-option').forEach(el => el.classList.remove('selected'));
+  document.querySelector('.status-option[data-status="todo"]').classList.add('selected');
+
+  if (isEdit) {
+    const s = projects[currentProjectId].shots[shotId];
+    if (s) {
+      $('shotTitle').value = s.title || '';
+      $('shotNote').value = s.note || '';
+      document.querySelectorAll('.status-option').forEach(el => el.classList.remove('selected'));
+      const statusEl = document.querySelector(`.status-option[data-status="${s.status || 'todo'}"]`);
+      if (statusEl) statusEl.classList.add('selected');
+
+      if (s.mediaUrl) {
+        showPreview(s.mediaUrl, s.mediaType);
+        // 保留原本的資料，除非使用者重新上傳或清除
+        pendingMediaData = {
+          mediaUrl: s.mediaUrl,
+          mediaType: s.mediaType,
+          storagePath: s.storagePath,
+          duration: s.duration,
+          unchanged: true
+        };
+      }
+    }
+  }
+
+  $('shotModal').classList.add('show');
+  $('shotTitle').focus();
+}
+
+// 狀態選擇器
+$('statusPicker').addEventListener('click', (e) => {
+  const opt = e.target.closest('.status-option');
+  if (!opt) return;
+  document.querySelectorAll('.status-option').forEach(el => el.classList.remove('selected'));
+  opt.classList.add('selected');
+});
+
+// 上傳區
+$('uploadArea').addEventListener('click', () => $('fileInput').click());
+$('fileInput').addEventListener('change', handleFileUpload);
+
+async function handleFileUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const isVideo = file.type.startsWith('video/');
+  const isImage = file.type.startsWith('image/');
+
+  if (!isVideo && !isImage) {
+    showToast('請選擇影片或圖片檔案');
+    return;
+  }
+
+  if (isVideo && file.size > MAX_VIDEO_SIZE) {
+    showToast('影片過大（>20MB），請先壓縮或剪短');
+    return;
+  }
+  if (isImage && file.size > MAX_IMAGE_SIZE) {
+    showToast('圖片過大（>5MB），請先壓縮');
+    return;
+  }
+
+  $('uploadProgress').style.display = 'block';
+  $('uploadProgress').textContent = '準備上傳…';
+
+  try {
+    let uploadFile = file;
+
+    // 圖片壓縮（影片不壓縮，避免畫質損失）
+    if (isImage && file.size > 1.5 * 1024 * 1024) {
+      $('uploadProgress').textContent = '壓縮圖片中…';
+      uploadFile = await compressImage(file);
+    }
+
+    // 取得影片時長
+    let duration = null;
+    if (isVideo) {
+      duration = await getVideoDuration(file);
+    }
+
+    // 上傳到 Firebase Storage
+    const ext = file.name.split('.').pop().toLowerCase();
+    const storagePath = `storyboard/${currentProjectId}/${uid()}.${ext}`;
+    const ref = storage.ref(storagePath);
+
+    const task = ref.put(uploadFile);
+    task.on('state_changed', (snap) => {
+      const pct = (snap.bytesTransferred / snap.totalBytes * 100).toFixed(0);
+      $('uploadProgress').textContent = `上傳中… ${pct}%`;
+    });
+
+    await task;
+    const url = await ref.getDownloadURL();
+
+    // 如果之前有舊媒體（非編輯時保留的原檔），刪掉
+    if (pendingMediaData && pendingMediaData.storagePath && !pendingMediaData.unchanged) {
+      try { await storage.ref(pendingMediaData.storagePath).delete(); } catch (e) {}
+    }
+    // 編輯時若使用者上傳新檔，原本的 unchanged 舊檔晚點儲存時再刪
+    pendingMediaData = {
+      mediaUrl: url,
+      mediaType: isVideo ? 'video' : 'image',
+      storagePath: storagePath,
+      duration: duration,
+      replacesOldPath: (pendingMediaData && pendingMediaData.unchanged) ? pendingMediaData.storagePath : null
+    };
+
+    $('uploadProgress').style.display = 'none';
+    showPreview(url, isVideo ? 'video' : 'image');
+    showToast('上傳完成');
+
+  } catch (err) {
+    $('uploadProgress').style.display = 'none';
+    showToast('上傳失敗：' + err.message);
+  }
+
+  // 清空 input 讓同個檔案可再選一次
+  $('fileInput').value = '';
+}
+
+function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const maxW = 1600;
+        let { width, height } = img;
+        if (width > maxW) {
+          height = height * (maxW / width);
+          width = maxW;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          if (blob) resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+          else reject(new Error('壓縮失敗'));
+        }, 'image/jpeg', 0.85);
+      };
+      img.onerror = () => reject(new Error('圖片載入失敗'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('讀檔失敗'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function getVideoDuration(file) {
+  return new Promise((resolve) => {
+    const v = document.createElement('video');
+    v.preload = 'metadata';
+    v.onloadedmetadata = () => {
+      URL.revokeObjectURL(v.src);
+      resolve(v.duration);
+    };
+    v.onerror = () => resolve(null);
+    v.src = URL.createObjectURL(file);
+  });
+}
+
+function showPreview(url, type) {
+  $('previewArea').style.display = 'block';
+  if (type === 'video') {
+    $('previewContent').innerHTML = `<video src="${escapeHtml(url)}" controls playsinline></video>`;
+  } else {
+    $('previewContent').innerHTML = `<img src="${escapeHtml(url)}" alt="">`;
+  }
+}
+
+$('previewClearBtn').addEventListener('click', async () => {
+  if (pendingMediaData && pendingMediaData.storagePath && !pendingMediaData.unchanged) {
+    // 剛上傳的，直接刪掉 Storage 裡的檔案
+    try { await storage.ref(pendingMediaData.storagePath).delete(); } catch (e) {}
+  }
+  // 標記為清除（編輯時儲存才會把舊檔刪掉）
+  pendingMediaData = { cleared: true, oldPath: (pendingMediaData && pendingMediaData.unchanged) ? pendingMediaData.storagePath : null };
+  $('previewArea').style.display = 'none';
+  $('previewContent').innerHTML = '';
+});
+
+// 儲存分鏡
+$('saveShotBtn').addEventListener('click', async () => {
+  const title = $('shotTitle').value.trim();
+  const note = $('shotNote').value.trim();
+  const status = document.querySelector('.status-option.selected').dataset.status;
+
+  if (!title && !note && !pendingMediaData) {
+    showToast('至少填寫標題、補充文字或上傳影片');
+    return;
+  }
+
+  const isEdit = !!editingShotId;
+  const shotId = editingShotId || uid();
+
+  // 計算 order
+  let order;
+  if (isEdit) {
+    order = projects[currentProjectId].shots[shotId].order;
+  } else {
+    const shots = getSortedShots();
+    order = shots.length;
+  }
+
+  const data = {
+    title: title,
+    note: note,
+    status: status,
+    order: order,
+    updatedAt: Date.now()
+  };
+
+  // 處理媒體
+  if (pendingMediaData) {
+    if (pendingMediaData.cleared) {
+      // 使用者清除了媒體
+      data.mediaUrl = null;
+      data.mediaType = null;
+      data.storagePath = null;
+      data.duration = null;
+      // 順便刪掉 Storage 裡的舊檔
+      if (pendingMediaData.oldPath) {
+        try { await storage.ref(pendingMediaData.oldPath).delete(); } catch (e) {}
+      }
+    } else if (pendingMediaData.unchanged) {
+      // 沒動過，不管它
+    } else {
+      // 新上傳的
+      data.mediaUrl = pendingMediaData.mediaUrl;
+      data.mediaType = pendingMediaData.mediaType;
+      data.storagePath = pendingMediaData.storagePath;
+      data.duration = pendingMediaData.duration;
+      // 把舊檔刪掉
+      if (pendingMediaData.replacesOldPath) {
+        try { await storage.ref(pendingMediaData.replacesOldPath).delete(); } catch (e) {}
+      }
+    }
+  } else if (!isEdit) {
+    // 新增時沒上傳
+    data.mediaUrl = null;
+    data.mediaType = null;
+    data.storagePath = null;
+    data.duration = null;
+  }
+
+  if (isEdit) {
+    db.ref(`/projects/${currentProjectId}/shots/${shotId}`).update(data)
+      .then(() => { closeModal('shotModal'); showToast('已更新分鏡'); })
+      .catch(err => showToast('儲存失敗：' + err.message));
+  } else {
+    data.createdAt = Date.now();
+    db.ref(`/projects/${currentProjectId}/shots/${shotId}`).set(data)
+      .then(() => { closeModal('shotModal'); showToast('已新增分鏡'); })
+      .catch(err => showToast('儲存失敗：' + err.message));
+  }
+});
+
+// 刪除分鏡
+$('deleteShotBtn').addEventListener('click', async () => {
+  if (!editingShotId) return;
+  if (!confirm('確定要刪除這個分鏡嗎？')) return;
+
+  const s = projects[currentProjectId].shots[editingShotId];
+  if (s && s.storagePath) {
+    try { await storage.ref(s.storagePath).delete(); } catch (e) {}
+  }
+  db.ref(`/projects/${currentProjectId}/shots/${editingShotId}`).remove()
+    .then(() => { closeModal('shotModal'); showToast('已刪除分鏡'); })
+    .catch(err => showToast('刪除失敗：' + err.message));
+});
+
+// ========== Modal 通用 ==========
+function closeModal(id) {
+  $(id).classList.remove('show');
+}
+document.querySelectorAll('[data-close-modal]').forEach(el => {
+  el.addEventListener('click', () => closeModal(el.dataset.closeModal));
+});
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal(overlay.id);
+  });
+});
+
+// ========== 媒體放大檢視 ==========
+function viewMedia(shotId) {
+  const s = projects[currentProjectId].shots[shotId];
+  if (!s || !s.mediaUrl) return;
+  const ratioCss = ratioToCss(projects[currentProjectId].ratio);
+  let html = '';
+  if (s.mediaType === 'video') {
+    html = `<video src="${escapeHtml(s.mediaUrl)}" controls autoplay playsinline style="max-width: 90vw; max-height: 80vh; display: block; border-radius: 12px; background: #000;"></video>`;
+  } else {
+    html = `<img src="${escapeHtml(s.mediaUrl)}" style="max-width: 90vw; max-height: 80vh; display: block; border-radius: 12px;">`;
+  }
+  $('viewerContent').innerHTML = html;
+  $('viewerModal').classList.add('show');
+}
+
+// ========== 啟動 ==========
+init();
+</script>
+</body>
+</html>
