@@ -18,20 +18,20 @@ body {
 }
 
 /* ========== 登入畫面 ========== */
-.login-screen {
+.login-screen, .user-picker-screen {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #faf8f5;
+  padding: 20px;
 }
 .login-box {
   background: #fff;
   border: 1px solid #e8e4dc;
   border-radius: 16px;
   padding: 40px 32px;
-  width: 360px;
-  max-width: 90vw;
+  width: 380px;
+  max-width: 100%;
   text-align: center;
 }
 .login-box h1 {
@@ -44,7 +44,8 @@ body {
   color: #888780;
   margin-bottom: 28px;
 }
-.login-box input {
+.login-box input[type="password"],
+.login-box input[type="text"] {
   width: 100%;
   padding: 12px 14px;
   border: 1px solid #d3d1c7;
@@ -53,7 +54,7 @@ body {
   margin-bottom: 12px;
   font-family: inherit;
 }
-.login-box button {
+.login-box button.primary {
   width: 100%;
   padding: 12px;
   border: none;
@@ -64,7 +65,7 @@ body {
   cursor: pointer;
   font-family: inherit;
 }
-.login-box button:hover { background: #444441; }
+.login-box button.primary:hover { background: #444441; }
 .login-box .err {
   color: #a32d2d;
   font-size: 13px;
@@ -72,10 +73,61 @@ body {
   min-height: 18px;
 }
 
-/* ========== 主畫面 ========== */
+/* 成員選擇格子 */
+.user-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+.user-pick-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 8px;
+  background: #fff;
+  border: 1px solid #d3d1c7;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.user-pick-btn:hover { background: #faf8f5; border-color: #888780; }
+.avatar {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.avatar-lg { width: 48px; height: 48px; font-size: 18px; }
+.avatar-md { width: 36px; height: 36px; font-size: 14px; }
+.avatar-sm { width: 24px; height: 24px; font-size: 11px; }
+.avatar-xs { width: 22px; height: 22px; font-size: 11px; }
+.no-member-hint {
+  font-size: 13px;
+  color: #888780;
+  text-align: center;
+  padding: 20px 0;
+}
+.link-btn {
+  background: transparent;
+  border: none;
+  color: #5f5e5a;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 8px;
+  font-family: inherit;
+  margin-top: 12px;
+  text-decoration: underline;
+}
+
+/* ========== 主畫面通用 ========== */
 .app { max-width: 1280px; margin: 0 auto; padding: 24px 20px 60px; }
 
-/* 頂部 Header */
+/* Header */
 .header {
   background: #fff;
   border: 1px solid #e8e4dc;
@@ -103,8 +155,8 @@ body {
   flex-wrap: wrap;
   align-items: center;
 }
-.header-right select,
-.header-right button,
+
+/* 按鈕 */
 .btn {
   padding: 8px 14px;
   border: 1px solid #d3d1c7;
@@ -116,8 +168,6 @@ body {
   color: #2c2c2a;
   transition: all 0.15s;
 }
-.header-right select:hover,
-.header-right button:hover,
 .btn:hover { background: #f5f2ec; border-color: #888780; }
 .btn-primary {
   background: #2c2c2a;
@@ -130,8 +180,217 @@ body {
   border-color: #f0baba;
 }
 .btn-danger:hover { background: #fceaea; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 
-/* 模式切換 */
+/* 當前使用者按鈕 */
+.current-user-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px 6px 6px;
+  background: #fff;
+  border: 1px solid #d3d1c7;
+  border-radius: 24px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+}
+.current-user-btn:hover { background: #f5f2ec; }
+
+/* ========== 專案列表頁 ========== */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.filter-bar .label {
+  font-size: 13px;
+  color: #888780;
+}
+.filter-chip {
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid #d3d1c7;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+}
+.filter-chip:hover { background: #f5f2ec; }
+.filter-chip.active {
+  background: #e6f1fb;
+  color: #0c447c;
+  border-color: #b5d4f4;
+}
+.filter-chip .chip-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+.filter-bar input.search {
+  width: 200px;
+  padding: 6px 12px;
+  border: 1px solid #d3d1c7;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.project-card {
+  background: #fff;
+  border: 1px solid #e8e4dc;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.project-card:hover {
+  border-color: #888780;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transform: translateY(-1px);
+}
+.project-thumb {
+  aspect-ratio: 16 / 10;
+  background: #1a1a1a;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.project-thumb .ratio-frame {
+  background: #2a2a2a;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.project-thumb .ratio-frame video,
+.project-thumb .ratio-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ratio-9-16 { aspect-ratio: 9/16; height: 80%; }
+.ratio-16-9 { aspect-ratio: 16/9; width: 80%; }
+.ratio-1-1 { aspect-ratio: 1/1; height: 75%; }
+.ratio-4-3 { aspect-ratio: 4/3; width: 75%; }
+.thumb-empty-icon {
+  color: #5f5e5a;
+  font-size: 24px;
+}
+.ratio-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.maker-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  border: 2px solid #1a1a1a;
+}
+.project-info { padding: 12px 14px; }
+.project-info .name {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+.project-info .meta {
+  font-size: 12px;
+  color: #888780;
+}
+.project-status-tags {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.status-tag {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.status-todo-bg { background: #faeeda; color: #854f0b; }
+.status-shot-bg { background: #e1f5ee; color: #085041; }
+.status-ok-bg { background: #e6f1fb; color: #0c447c; }
+.status-redo-bg { background: #fcebeb; color: #791f1f; }
+
+.add-project-card {
+  background: transparent;
+  border: 1.5px dashed #d3d1c7;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.add-project-card:hover { border-color: #888780; background: #fafaf7; }
+.add-project-card .inner {
+  text-align: center;
+  color: #888780;
+}
+.add-project-card .inner .plus {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 4px;
+}
+.add-project-card .inner .text { font-size: 13px; }
+
+/* 空狀態 */
+.empty-state {
+  background: #fff;
+  border: 1px dashed #d3d1c7;
+  border-radius: 12px;
+  padding: 60px 20px;
+  text-align: center;
+  color: #888780;
+}
+.empty-state h3 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #2c2c2a;
+  margin-bottom: 8px;
+}
+.empty-state p { font-size: 13px; margin-bottom: 16px; }
+
+/* ========== 分鏡頁 ========== */
+.back-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.back-bar .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
 .mode-bar {
   display: flex;
   gap: 8px;
@@ -160,7 +419,7 @@ body {
 }
 .mode-bar .spacer { flex: 1; }
 
-/* ========== 分鏡表模式 ========== */
+/* 分鏡格子 */
 .shots-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -181,29 +440,19 @@ body {
 }
 .shot-card.dragging { opacity: 0.4; cursor: grabbing; }
 .shot-card.drag-over { border-color: #185fa5; border-style: dashed; }
-
 .shot-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 }
-.shot-num {
-  font-size: 12px;
-  font-weight: 500;
-  color: #888780;
-}
+.shot-num { font-size: 12px; font-weight: 500; color: #888780; }
 .shot-status {
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 6px;
   font-weight: 500;
 }
-.status-todo { background: #faeeda; color: #854f0b; }
-.status-shot { background: #e1f5ee; color: #085041; }
-.status-ok { background: #e6f1fb; color: #0c447c; }
-.status-redo { background: #fcebeb; color: #791f1f; }
-
 .shot-media {
   background: #f1efe8;
   border-radius: 8px;
@@ -220,17 +469,13 @@ body {
   gap: 6px;
   color: #b4b2a9;
 }
-.shot-media .placeholder-text {
-  font-size: 11px;
-}
-.shot-media video,
-.shot-media img {
+.shot-media video, .shot-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
-.shot-media .duration-badge {
+.duration-badge {
   position: absolute;
   bottom: 6px;
   right: 6px;
@@ -240,7 +485,7 @@ body {
   padding: 2px 6px;
   border-radius: 4px;
 }
-.shot-media .play-icon {
+.play-icon {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -257,8 +502,7 @@ body {
   transition: opacity 0.15s;
 }
 .shot-media:hover .play-icon { opacity: 1; }
-.shot-media .play-icon svg { fill: #fff; }
-
+.play-icon svg { fill: #fff; }
 .shot-title {
   font-size: 13px;
   font-weight: 500;
@@ -272,8 +516,7 @@ body {
   word-break: break-word;
   white-space: pre-wrap;
 }
-
-.add-card {
+.add-shot-card {
   background: transparent;
   border: 1.5px dashed #d3d1c7;
   border-radius: 12px;
@@ -284,15 +527,24 @@ body {
   min-height: 240px;
   transition: all 0.15s;
 }
-.add-card:hover { border-color: #888780; background: #fafaf7; }
-.add-card .add-inner {
+.add-shot-card:hover { border-color: #888780; background: #fafaf7; }
+.add-shot-card .inner {
   text-align: center;
   color: #888780;
+  font-size: 13px;
 }
-.add-card .add-inner svg { display: block; margin: 0 auto 6px; }
-.add-card .add-inner span { font-size: 13px; }
+.add-shot-card .inner .plus {
+  font-size: 24px;
+  display: block;
+  margin-bottom: 4px;
+}
 
-/* ========== Reels 滑動預覽模式 ========== */
+.status-todo { background: #faeeda; color: #854f0b; }
+.status-shot { background: #e1f5ee; color: #085041; }
+.status-ok { background: #e6f1fb; color: #0c447c; }
+.status-redo { background: #fcebeb; color: #791f1f; }
+
+/* Reels 模式 */
 .reels-stage {
   background: #f1efe8;
   border-radius: 16px;
@@ -319,16 +571,12 @@ body {
   overflow: hidden;
   margin-bottom: 6px;
 }
-.reels-side .thumb video,
-.reels-side .thumb img {
+.reels-side .thumb video, .reels-side .thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.reels-side .label-num {
-  font-size: 11px;
-  color: #888780;
-}
+.reels-side .label-num { font-size: 11px; color: #888780; }
 .reels-main {
   width: 280px;
   max-width: 90vw;
@@ -344,12 +592,8 @@ body {
   border-radius: 22px;
   position: relative;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
 }
-.reels-screen video,
-.reels-screen img {
+.reels-screen video, .reels-screen img {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -386,17 +630,8 @@ body {
   text-shadow: 0 1px 4px rgba(0,0,0,0.6);
   width: 100%;
 }
-.reels-bottom-text .t-title {
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-.reels-bottom-text .t-note {
-  font-size: 12px;
-  opacity: 0.92;
-  line-height: 1.5;
-  white-space: pre-wrap;
-}
+.reels-bottom-text .t-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.reels-bottom-text .t-note { font-size: 12px; opacity: 0.92; line-height: 1.5; white-space: pre-wrap; }
 .reels-empty {
   color: #888;
   font-size: 13px;
@@ -408,7 +643,6 @@ body {
   align-items: center;
   justify-content: center;
 }
-
 .reels-progress {
   display: flex;
   gap: 4px;
@@ -429,7 +663,6 @@ body {
   border-radius: 3px;
   background: #2c2c2a;
 }
-
 .reels-info {
   background: #fff;
   border: 1px solid #e8e4dc;
@@ -474,16 +707,8 @@ body {
   overflow-y: auto;
   padding: 28px;
 }
-.modal-box h2 {
-  font-size: 18px;
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-.modal-box .modal-sub {
-  font-size: 13px;
-  color: #888780;
-  margin-bottom: 20px;
-}
+.modal-box h2 { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+.modal-box .modal-sub { font-size: 13px; color: #888780; margin-bottom: 20px; }
 .modal-box label {
   display: block;
   font-size: 13px;
@@ -513,12 +738,11 @@ body {
   flex-wrap: wrap;
 }
 
-/* 比例選擇器 */
+/* 比例選擇 */
 .ratio-picker {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
-  margin-bottom: 8px;
 }
 .ratio-option {
   border: 1px solid #d3d1c7;
@@ -534,48 +758,34 @@ body {
   border-width: 2px;
   background: #e6f1fb;
 }
-.ratio-option .ratio-shape {
-  background: #888780;
-  margin: 0 auto 8px;
-  border-radius: 3px;
-}
+.ratio-option .ratio-shape { background: #888780; margin: 0 auto 8px; border-radius: 3px; }
 .ratio-option.selected .ratio-shape { background: #185fa5; }
-.ratio-option .ratio-label {
-  font-size: 12px;
-  font-weight: 500;
-  margin-bottom: 2px;
-}
-.ratio-option .ratio-platform {
-  font-size: 10px;
-  color: #888780;
-}
+.ratio-option .ratio-label { font-size: 12px; font-weight: 500; margin-bottom: 2px; }
+.ratio-option .ratio-platform { font-size: 10px; color: #888780; }
 .ratio-option.selected .ratio-platform { color: #185fa5; }
 
 /* 上傳區 */
 .upload-area {
-  border: 2px dashed #d3d1c7;
+  display: block;
+  border: 2px dashed #185fa5;
   border-radius: 8px;
-  padding: 20px;
+  padding: 24px;
   text-align: center;
   cursor: pointer;
   transition: all 0.15s;
-  background: #fafaf7;
+  background: #f0f7ff;
+  user-select: none;
 }
-.upload-area:hover { border-color: #185fa5; background: #f0f7ff; }
+.upload-area:hover { border-color: #0c447c; background: #e6f1fb; }
+.upload-area:active { transform: scale(0.99); }
 .upload-area .upload-text {
-  font-size: 13px;
-  color: #5f5e5a;
+  font-size: 14px;
+  color: #185fa5;
+  font-weight: 500;
   margin-bottom: 4px;
 }
-.upload-area .upload-hint {
-  font-size: 11px;
-  color: #888780;
-}
-.upload-progress {
-  margin-top: 12px;
-  font-size: 12px;
-  color: #5f5e5a;
-}
+.upload-area .upload-hint { font-size: 11px; color: #888780; }
+.upload-progress { margin-top: 12px; font-size: 12px; color: #5f5e5a; }
 .preview-area {
   margin-top: 12px;
   position: relative;
@@ -583,8 +793,7 @@ body {
   overflow: hidden;
   background: #f1efe8;
 }
-.preview-area video,
-.preview-area img {
+.preview-area video, .preview-area img {
   width: 100%;
   display: block;
   max-height: 300px;
@@ -604,12 +813,8 @@ body {
   font-size: 14px;
 }
 
-/* 狀態選擇器 */
-.status-picker {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
+/* 狀態選擇 */
+.status-picker { display: flex; gap: 6px; flex-wrap: wrap; }
 .status-option {
   padding: 6px 12px;
   border-radius: 8px;
@@ -624,24 +829,52 @@ body {
 .status-option.redo { background: #fcebeb; color: #791f1f; }
 .status-option.selected { border-color: currentColor; box-shadow: 0 0 0 2px rgba(0,0,0,0.05); }
 
-/* 空狀態 */
-.empty-state {
-  background: #fff;
-  border: 1px dashed #d3d1c7;
-  border-radius: 12px;
-  padding: 60px 20px;
-  text-align: center;
-  color: #888780;
+/* 成員管理 */
+.member-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 6px;
 }
-.empty-state h3 {
-  font-size: 16px;
-  font-weight: 500;
-  color: #2c2c2a;
-  margin-bottom: 8px;
-}
-.empty-state p { font-size: 13px; margin-bottom: 16px; }
+.member-row.is-current { background: #f5f2ec; }
+.member-row .info { flex: 1; }
+.member-row .name-text { font-size: 14px; font-weight: 500; }
+.member-row .count-text { font-size: 11px; color: #888780; }
+.member-row .actions { display: flex; gap: 6px; }
+.member-row .edit-input { padding: 6px 10px; font-size: 13px; border: 1px solid #d3d1c7; border-radius: 6px; flex: 1; max-width: 180px; }
 
-/* Toast 通知 */
+.color-palette {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.1s;
+}
+.color-swatch:hover { transform: scale(1.1); }
+.color-swatch.selected { border-color: #2c2c2a; }
+
+/* 唯讀模式 */
+.readonly-banner {
+  background: #e6f1fb;
+  color: #0c447c;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  text-align: center;
+  border: 1px solid #b5d4f4;
+}
+
+/* Toast */
 .toast {
   position: fixed;
   bottom: 24px;
@@ -659,77 +892,53 @@ body {
 }
 .toast.show { opacity: 1; }
 
-/* 唯讀模式 banner */
-.readonly-banner {
-  background: #e6f1fb;
-  color: #0c447c;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 13px;
-  margin-bottom: 16px;
-  text-align: center;
-  border: 1px solid #b5d4f4;
-}
-
 /* RWD */
 @media (max-width: 600px) {
   .app { padding: 16px 12px 40px; }
   .header { padding: 14px 16px; }
-  .shots-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+  .shots-grid, .projects-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
   .reels-side { display: none; }
   .modal-box { padding: 20px; }
   .ratio-picker { grid-template-columns: repeat(2, 1fr); }
+  .user-grid { grid-template-columns: repeat(3, 1fr); }
 }
 </style>
 </head>
 <body>
 
-<!-- 登入畫面 -->
+<!-- ===== 登入畫面 ===== -->
 <div id="loginScreen" class="login-screen">
   <div class="login-box">
     <h1>VV DOUBLE 分鏡規劃</h1>
     <p class="subtitle">請輸入管理者密碼</p>
     <input type="password" id="loginPwd" placeholder="密碼" autofocus>
-    <button id="loginBtn">登入</button>
+    <button class="primary" id="loginBtn">登入</button>
     <div class="err" id="loginErr"></div>
   </div>
 </div>
 
-<!-- 主畫面 -->
+<!-- ===== 選擇身份畫面 ===== -->
+<div id="userPickerScreen" class="user-picker-screen" style="display:none;">
+  <div class="login-box">
+    <h1>你是誰呢？</h1>
+    <p class="subtitle">選擇後就會記住，下次不用再選</p>
+    <div id="userGrid" class="user-grid"></div>
+    <button class="link-btn" id="openManageMembersBtn">⚙️ 管理成員</button>
+  </div>
+</div>
+
+<!-- ===== 主畫面 ===== -->
 <div id="mainApp" class="app" style="display:none;">
 
   <div id="readonlyBanner" class="readonly-banner" style="display:none;">
     👁 你正在以「唯讀模式」瀏覽，無法編輯內容
   </div>
 
-  <!-- Header -->
-  <div class="header">
-    <div class="header-left">
-      <h1>VV DOUBLE 分鏡規劃</h1>
-      <div class="meta" id="projectMeta">尚未選擇專案</div>
-    </div>
-    <div class="header-right" id="headerRight">
-      <select id="projectSelect"></select>
-      <button class="btn" id="newProjectBtn">+ 新專案</button>
-      <button class="btn" id="shareBtn">複製分享連結</button>
-      <button class="btn btn-danger" id="deleteProjectBtn">刪除專案</button>
-    </div>
-  </div>
-
-  <!-- 模式切換 -->
-  <div class="mode-bar" id="modeBar">
-    <span class="label">檢視模式：</span>
-    <button class="mode-btn active" data-mode="grid">分鏡表</button>
-    <button class="mode-btn" data-mode="reels">Reels 滑動預覽</button>
-    <span class="spacer"></span>
-    <button class="btn btn-primary" id="addShotBtn">+ 新增分鏡</button>
-  </div>
-
-  <!-- 內容區 -->
-  <div id="content"></div>
+  <!-- 內容區（依路由切換） -->
+  <div id="appContent"></div>
 </div>
 
-<!-- 新專案 Modal -->
+<!-- ===== 新專案 Modal ===== -->
 <div class="modal-overlay" id="newProjectModal">
   <div class="modal-box">
     <h2>建立新專案</h2>
@@ -769,7 +978,7 @@ body {
   </div>
 </div>
 
-<!-- 分鏡編輯 Modal -->
+<!-- ===== 分鏡編輯 Modal ===== -->
 <div class="modal-overlay" id="shotModal">
   <div class="modal-box">
     <h2 id="shotModalTitle">新增分鏡</h2>
@@ -779,11 +988,11 @@ body {
     <input type="text" id="shotTitle" placeholder="例如：刺繡牛仔外套近拍">
 
     <label>影片或參考圖</label>
-    <div class="upload-area" id="uploadArea">
-      <div class="upload-text">點此上傳影片或圖片</div>
-      <div class="upload-hint">影片 ≤20MB（自動壓縮 / 建議短片）/ 圖片 ≤5MB</div>
-    </div>
-    <input type="file" id="fileInput" accept="video/*,image/*" style="display:none;">
+    <label class="upload-area" id="uploadArea" for="fileInput">
+      <div class="upload-text">📁 點此上傳影片或圖片</div>
+      <div class="upload-hint">影片 ≤100MB / 圖片 ≤10MB（圖片自動壓縮）</div>
+      <input type="file" id="fileInput" accept="video/*,image/*" style="display:none;">
+    </label>
     <div class="upload-progress" id="uploadProgress" style="display:none;"></div>
     <div class="preview-area" id="previewArea" style="display:none;">
       <button class="preview-clear" id="previewClearBtn" type="button">✕</button>
@@ -809,7 +1018,7 @@ body {
   </div>
 </div>
 
-<!-- 影片放大檢視 Modal -->
+<!-- ===== 媒體放大檢視 Modal ===== -->
 <div class="modal-overlay" id="viewerModal">
   <div class="modal-box" style="background: transparent; padding: 0; max-width: 90vw; width: auto;">
     <div id="viewerContent" style="position: relative;"></div>
@@ -819,13 +1028,50 @@ body {
   </div>
 </div>
 
+<!-- ===== 管理成員 Modal ===== -->
+<div class="modal-overlay" id="manageMembersModal">
+  <div class="modal-box">
+    <h2>管理成員</h2>
+    <p class="modal-sub">新增、編輯或刪除製作者</p>
+
+    <div id="memberList" style="margin-bottom: 16px;"></div>
+
+    <div style="border-top: 1px solid #e8e4dc; padding-top: 16px;">
+      <p style="font-size: 13px; font-weight: 500; margin-bottom: 8px;">新增成員</p>
+      <input type="text" id="newMemberName" placeholder="名字（例如：小芸）" style="margin-bottom: 10px;">
+      <p style="font-size: 12px; color: #888780; margin-bottom: 6px;">選擇顏色</p>
+      <div class="color-palette" id="colorPalette"></div>
+      <button class="btn btn-primary" id="addMemberBtn" style="width: 100%;">+ 新增成員</button>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" data-close-modal="manageMembersModal">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 刪除成員處理 Modal ===== -->
+<div class="modal-overlay" id="deleteMemberModal">
+  <div class="modal-box">
+    <h2>刪除成員</h2>
+    <p class="modal-sub" id="deleteMemberSub">他建立過的專案要怎麼處理？</p>
+
+    <div id="deleteMemberOptions" style="margin: 20px 0;"></div>
+
+    <div class="modal-actions">
+      <button class="btn" data-close-modal="deleteMemberModal">取消</button>
+      <button class="btn btn-danger" id="confirmDeleteMemberBtn">確認刪除</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
 /* ============================================================
- * VV DOUBLE 分鏡規劃工具 v1
- * Firebase + GitHub Pages 單檔 HTML
+ * VV DOUBLE 分鏡規劃工具 v2
+ * 新增：專案列表頁、成員管理、製作者標記、網址路由
  * ============================================================ */
 
 // ========== Firebase 設定 ==========
@@ -845,17 +1091,36 @@ const storage = firebase.storage();
 
 // ========== 設定 ==========
 const PASSWORD = 'vvdoubles2';
-const MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 20MB
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;  // 5MB
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;  // 10MB
+
+// 預設成員顏色（背景, 文字, 名稱）
+const MEMBER_COLORS = [
+  { id: 'yellow', bg: '#FDE68A', fg: '#854F0B', name: '黃' },
+  { id: 'blue',   bg: '#BFDBFE', fg: '#0C447C', name: '藍' },
+  { id: 'pink',   bg: '#FBCFE8', fg: '#72243E', name: '粉' },
+  { id: 'green',  bg: '#BBF7D0', fg: '#085041', name: '綠' },
+  { id: 'purple', bg: '#DDD6FE', fg: '#3C3489', name: '紫' },
+  { id: 'orange', bg: '#FED7AA', fg: '#854F0B', name: '橘' },
+  { id: 'red',    bg: '#FECACA', fg: '#791F1F', name: '紅' },
+  { id: 'gray',   bg: '#D3D1C7', fg: '#444441', name: '灰' },
+];
 
 // ========== 全域狀態 ==========
 let currentProjectId = null;
-let projects = {};         // { projectId: { name, ratio, shots: { shotId: {...} } } }
-let currentMode = 'grid';  // 'grid' | 'reels'
+let currentMemberId = null;
+let projects = {};
+let members = {};
+let currentMode = 'grid';
 let currentReelIndex = 0;
 let isReadonly = false;
 let editingShotId = null;
-let pendingMediaData = null; // 編輯分鏡時暫存的媒體資料
+let pendingMediaData = null;
+let selectedNewMemberColor = 'yellow';
+let editingMemberId = null;
+let pendingDeleteMemberId = null;
+let filterMakerId = 'all'; // 'all' | 'mine' | memberId
+let searchQuery = '';
 
 // ========== 工具函數 ==========
 function $(id) { return document.getElementById(id); }
@@ -874,56 +1139,97 @@ function escapeHtml(str) {
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
-function ratioToCss(ratio) {
-  // '9:16' → '9 / 16'
-  return ratio.replace(':', ' / ');
-}
+function ratioToCss(ratio) { return ratio.replace(':', ' / '); }
 function statusLabel(s) {
   return { todo:'待拍', shot:'已拍', ok:'確認 OK', redo:'重拍' }[s] || '待拍';
 }
 function getQueryParam(name) {
-  const params = new URLSearchParams(window.location.search);
-  return params.get(name);
+  return new URLSearchParams(window.location.search).get(name);
+}
+function getColor(colorId) {
+  return MEMBER_COLORS.find(c => c.id === colorId) || MEMBER_COLORS[0];
+}
+function getFirstChar(name) {
+  if (!name) return '?';
+  return name.trim().charAt(0);
+}
+function timeAgo(ts) {
+  if (!ts) return '';
+  const diff = Date.now() - ts;
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return '剛剛';
+  if (min < 60) return `${min} 分鐘前`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr} 小時前`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `${day} 天前`;
+  const mon = Math.floor(day / 30);
+  if (mon < 12) return `${mon} 個月前`;
+  return `${Math.floor(mon / 12)} 年前`;
 }
 
-// ========== 進入點：判斷模式 ==========
+// 渲染頭像 HTML
+function avatarHtml(memberId, sizeClass) {
+  const m = members[memberId];
+  if (!m) {
+    return `<div class="avatar ${sizeClass}" style="background:#e8e4dc; color:#888780;">?</div>`;
+  }
+  const c = getColor(m.color);
+  return `<div class="avatar ${sizeClass}" style="background:${c.bg}; color:${c.fg};">${escapeHtml(getFirstChar(m.name))}</div>`;
+}
+
+// ========== 進入點 ==========
 function init() {
   const sharedProject = getQueryParam('p');
   const view = getQueryParam('view');
 
   if (sharedProject && view === 'readonly') {
-    // 唯讀模式：直接進入，不需密碼
     isReadonly = true;
     $('loginScreen').style.display = 'none';
     $('mainApp').style.display = 'block';
     $('readonlyBanner').style.display = 'block';
-    // 隱藏所有編輯按鈕
-    $('newProjectBtn').style.display = 'none';
-    $('shareBtn').style.display = 'none';
-    $('deleteProjectBtn').style.display = 'none';
-    $('addShotBtn').style.display = 'none';
-    $('projectSelect').disabled = true;
-    loadProjects(sharedProject);
+    currentProjectId = sharedProject;
+    loadMembersAndProjects();
+    return;
+  }
+
+  if (sessionStorage.getItem('storyboard_logged_in') === 'true') {
+    afterLogin();
   } else {
-    // 管理者模式：需密碼
-    if (sessionStorage.getItem('storyboard_logged_in') === 'true') {
-      enterApp();
-    } else {
-      showLogin();
-    }
+    showLogin();
   }
 }
 
 function showLogin() {
   $('loginScreen').style.display = 'flex';
+  $('userPickerScreen').style.display = 'none';
   $('mainApp').style.display = 'none';
   $('loginPwd').focus();
 }
 
-function enterApp() {
+function afterLogin() {
   $('loginScreen').style.display = 'none';
+  const savedMemberId = localStorage.getItem('storyboard_current_member');
+  loadMembersAndProjects(() => {
+    if (savedMemberId && members[savedMemberId]) {
+      currentMemberId = savedMemberId;
+      enterApp();
+    } else {
+      showUserPicker();
+    }
+  });
+}
+
+function showUserPicker() {
+  $('userPickerScreen').style.display = 'flex';
+  $('mainApp').style.display = 'none';
+  renderUserPicker();
+}
+
+function enterApp() {
+  $('userPickerScreen').style.display = 'none';
   $('mainApp').style.display = 'block';
-  loadProjects();
+  handleRouteChange();
 }
 
 // ========== 登入 ==========
@@ -935,88 +1241,441 @@ function tryLogin() {
   const v = $('loginPwd').value;
   if (v === PASSWORD) {
     sessionStorage.setItem('storyboard_logged_in', 'true');
-    enterApp();
+    afterLogin();
   } else {
     $('loginErr').textContent = '密碼錯誤';
     $('loginPwd').value = '';
   }
 }
 
-// ========== 載入專案 ==========
-function loadProjects(forceProjectId) {
+// ========== 載入資料 ==========
+function loadMembersAndProjects(onFirstLoad) {
+  let firstLoaded = false;
+  let dataReady = { members: false, projects: false };
+
+  function checkAndCall() {
+    if (dataReady.members && dataReady.projects && !firstLoaded) {
+      firstLoaded = true;
+      if (onFirstLoad) onFirstLoad();
+    }
+  }
+
+  db.ref('/members').on('value', (snap) => {
+    members = snap.val() || {};
+    dataReady.members = true;
+    checkAndCall();
+    if (firstLoaded) reRender();
+  });
+
   db.ref('/projects').on('value', (snap) => {
     projects = snap.val() || {};
-    renderProjectSelect(forceProjectId);
-  }, (err) => {
-    showToast('Firebase 連線失敗：' + err.message);
+    dataReady.projects = true;
+    checkAndCall();
+    if (firstLoaded) reRender();
   });
 }
 
-function renderProjectSelect(forceProjectId) {
-  const sel = $('projectSelect');
-  const ids = Object.keys(projects);
+function reRender() {
+  if (isReadonly) {
+    renderShotPage();
+    return;
+  }
+  if (currentProjectId) {
+    renderShotPage();
+  } else {
+    renderProjectListPage();
+  }
+}
 
-  sel.innerHTML = '';
-
-  if (ids.length === 0) {
-    sel.innerHTML = '<option>尚無專案</option>';
+// ========== 路由 ==========
+function handleRouteChange() {
+  const p = getQueryParam('p');
+  if (p && projects[p]) {
+    currentProjectId = p;
+    currentReelIndex = 0;
+  } else {
     currentProjectId = null;
-    renderEmpty();
+  }
+  reRender();
+}
+
+function navigateToProject(projectId) {
+  currentProjectId = projectId;
+  currentReelIndex = 0;
+  // 更新網址（不重新載入頁面）
+  const newUrl = `${window.location.pathname}?p=${projectId}`;
+  window.history.pushState({ p: projectId }, '', newUrl);
+  reRender();
+}
+
+function navigateToList() {
+  currentProjectId = null;
+  window.history.pushState({}, '', window.location.pathname);
+  reRender();
+}
+
+window.addEventListener('popstate', () => {
+  if (isReadonly) return; // 唯讀模式不處理路由
+  handleRouteChange();
+});
+
+// ========== 選擇身份 ==========
+function renderUserPicker() {
+  const grid = $('userGrid');
+  const memberList = Object.entries(members);
+
+  if (memberList.length === 0) {
+    grid.innerHTML = `
+      <div class="no-member-hint" style="grid-column: 1/-1;">
+        還沒有成員，請先點下方「管理成員」新增第一位
+      </div>
+    `;
     return;
   }
 
-  ids.forEach(id => {
-    const opt = document.createElement('option');
-    opt.value = id;
-    opt.textContent = projects[id].name + ' (' + projects[id].ratio + ')';
-    sel.appendChild(opt);
+  grid.innerHTML = memberList.map(([id, m]) => {
+    const c = getColor(m.color);
+    return `
+      <button class="user-pick-btn" data-pick-member="${id}">
+        <div class="avatar avatar-lg" style="background:${c.bg}; color:${c.fg};">${escapeHtml(getFirstChar(m.name))}</div>
+        <span style="font-size:13px; font-weight:500;">${escapeHtml(m.name)}</span>
+      </button>
+    `;
+  }).join('');
+
+  grid.querySelectorAll('[data-pick-member]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mid = btn.dataset.pickMember;
+      currentMemberId = mid;
+      localStorage.setItem('storyboard_current_member', mid);
+      enterApp();
+    });
   });
-
-  // 決定要顯示的專案
-  if (forceProjectId && projects[forceProjectId]) {
-    currentProjectId = forceProjectId;
-  } else if (!currentProjectId || !projects[currentProjectId]) {
-    currentProjectId = ids[0];
-  }
-  sel.value = currentProjectId;
-
-  renderProject();
 }
 
-$('projectSelect').addEventListener('change', (e) => {
-  currentProjectId = e.target.value;
-  currentReelIndex = 0;
-  renderProject();
+$('openManageMembersBtn').addEventListener('click', () => {
+  openManageMembersModal();
 });
 
-function renderEmpty() {
-  $('projectMeta').textContent = '尚未建立任何專案';
-  $('content').innerHTML = `
-    <div class="empty-state">
-      <h3>還沒有任何分鏡專案</h3>
-      <p>建立第一個專案，開始規劃你的拍攝內容</p>
-      ${isReadonly ? '' : '<button class="btn btn-primary" onclick="document.getElementById(\'newProjectBtn\').click()">+ 建立新專案</button>'}
+// ========== 專案列表頁 ==========
+function renderProjectListPage() {
+  const allProjects = Object.entries(projects).map(([id, p]) => ({ id, ...p }));
+
+  // 篩選
+  let filtered = allProjects;
+  if (filterMakerId === 'mine') {
+    filtered = filtered.filter(p => p.createdBy === currentMemberId);
+  } else if (filterMakerId !== 'all') {
+    filtered = filtered.filter(p => p.createdBy === filterMakerId);
+  }
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(p => (p.name || '').toLowerCase().includes(q));
+  }
+
+  // 排序：最後更新時間
+  filtered.sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0));
+
+  const me = members[currentMemberId];
+
+  let html = `
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <h1>VV DOUBLE 分鏡規劃</h1>
+        <div class="meta">共 ${allProjects.length} 個專案</div>
+      </div>
+      <div class="header-right">
+        <button class="current-user-btn" id="switchUserBtn" title="點擊切換身份">
+          ${avatarHtml(currentMemberId, 'avatar-xs')}
+          <span>${me ? escapeHtml(me.name) : '訪客'}</span>
+          <span style="font-size:10px; color:#888780;">▾</span>
+        </button>
+        <button class="btn btn-primary" id="newProjectBtn">+ 新專案</button>
+      </div>
+    </div>
+
+    <!-- 篩選列 -->
+    <div class="filter-bar">
+      <span class="label">篩選：</span>
+      <button class="filter-chip ${filterMakerId === 'all' ? 'active' : ''}" data-filter="all">全部</button>
+      <button class="filter-chip ${filterMakerId === 'mine' ? 'active' : ''}" data-filter="mine">
+        ${me ? `<span class="chip-dot" style="background:${getColor(me.color).bg};"></span> 只看我的` : '只看我的'}
+      </button>
+      ${Object.entries(members)
+        .filter(([id]) => id !== currentMemberId)
+        .map(([id, m]) => {
+          const c = getColor(m.color);
+          return `<button class="filter-chip ${filterMakerId === id ? 'active' : ''}" data-filter="${id}">
+            <span class="chip-dot" style="background:${c.bg};"></span> ${escapeHtml(m.name)}
+          </button>`;
+        }).join('')}
+      <div style="flex:1;"></div>
+      <input type="text" class="search" id="searchInput" placeholder="搜尋專案名稱…" value="${escapeHtml(searchQuery)}">
+    </div>
+  `;
+
+  if (filtered.length === 0 && searchQuery === '' && filterMakerId === 'all') {
+    html += `
+      <div class="empty-state">
+        <h3>還沒有任何分鏡專案</h3>
+        <p>建立第一個專案，開始規劃你的拍攝內容</p>
+        <button class="btn btn-primary" onclick="document.getElementById('newProjectBtn').click()">+ 建立新專案</button>
+      </div>
+    `;
+  } else if (filtered.length === 0) {
+    html += `
+      <div class="empty-state">
+        <h3>沒有符合條件的專案</h3>
+        <p>試試別的篩選條件</p>
+      </div>
+    `;
+  } else {
+    html += '<div class="projects-grid">';
+    filtered.forEach(p => {
+      html += renderProjectCard(p);
+    });
+    html += `
+      <div class="add-project-card" id="addProjectCard">
+        <div class="inner">
+          <span class="plus">+</span>
+          <span class="text">建立新專案</span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  $('appContent').innerHTML = html;
+  attachListPageEvents();
+}
+
+function renderProjectCard(p) {
+  const shots = p.shots ? Object.values(p.shots) : [];
+  const shotCount = shots.length;
+  const ratioClass = 'ratio-' + p.ratio.replace(':', '-');
+
+  // 找第一張有媒體的分鏡當縮圖
+  const sortedShots = shots.sort((a, b) => (a.order || 0) - (b.order || 0));
+  const firstWithMedia = sortedShots.find(s => s.mediaUrl);
+
+  let thumbInner;
+  if (firstWithMedia) {
+    if (firstWithMedia.mediaType === 'video') {
+      thumbInner = `<video src="${escapeHtml(firstWithMedia.mediaUrl)}" muted preload="metadata"></video>`;
+    } else {
+      thumbInner = `<img src="${escapeHtml(firstWithMedia.mediaUrl)}" alt="">`;
+    }
+  } else {
+    thumbInner = `<div class="thumb-empty-icon">▶</div>`;
+  }
+
+  // 狀態統計
+  const statusCount = { todo: 0, shot: 0, ok: 0, redo: 0 };
+  shots.forEach(s => {
+    if (statusCount[s.status] != null) statusCount[s.status]++;
+  });
+  let statusTags = '';
+  if (statusCount.ok > 0) statusTags += `<span class="status-tag status-ok-bg">OK ${statusCount.ok}</span>`;
+  if (statusCount.shot > 0) statusTags += `<span class="status-tag status-shot-bg">已拍 ${statusCount.shot}</span>`;
+  if (statusCount.todo > 0) statusTags += `<span class="status-tag status-todo-bg">待拍 ${statusCount.todo}</span>`;
+  if (statusCount.redo > 0) statusTags += `<span class="status-tag status-redo-bg">重拍 ${statusCount.redo}</span>`;
+
+  // 製作者
+  const maker = p.createdBy ? members[p.createdBy] : null;
+  const makerName = maker ? maker.name : '無';
+  const updateTime = timeAgo(p.updatedAt || p.createdAt);
+
+  return `
+    <div class="project-card" data-project-id="${p.id}">
+      <div class="project-thumb">
+        <div class="ratio-frame ${ratioClass}">${thumbInner}</div>
+        <span class="ratio-badge">${p.ratio}</span>
+        ${p.createdBy ? `<div class="maker-badge">${avatarHtml(p.createdBy, 'avatar-sm')}</div>` : ''}
+      </div>
+      <div class="project-info">
+        <div class="name">${escapeHtml(p.name)}</div>
+        <div class="meta">${shotCount} 個分鏡 · ${escapeHtml(makerName)} · ${updateTime}</div>
+        ${statusTags ? `<div class="project-status-tags">${statusTags}</div>` : ''}
+      </div>
     </div>
   `;
 }
 
-function renderProject() {
-  if (!currentProjectId || !projects[currentProjectId]) {
-    renderEmpty();
+function attachListPageEvents() {
+  // 卡片點擊
+  document.querySelectorAll('.project-card[data-project-id]').forEach(card => {
+    card.addEventListener('click', () => navigateToProject(card.dataset.projectId));
+  });
+
+  // 新增按鈕
+  const newBtn = $('newProjectBtn');
+  if (newBtn) newBtn.addEventListener('click', openNewProjectModal);
+  const addCard = $('addProjectCard');
+  if (addCard) addCard.addEventListener('click', openNewProjectModal);
+
+  // 切換身份
+  const switchBtn = $('switchUserBtn');
+  if (switchBtn) switchBtn.addEventListener('click', () => {
+    if (confirm('要切換身份嗎？')) {
+      localStorage.removeItem('storyboard_current_member');
+      currentMemberId = null;
+      $('mainApp').style.display = 'none';
+      showUserPicker();
+    }
+  });
+
+  // 篩選按鈕
+  document.querySelectorAll('[data-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterMakerId = btn.dataset.filter;
+      reRender();
+    });
+  });
+
+  // 搜尋
+  const searchInput = $('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      // 防抖：直接重 render（資料量小無妨）
+      renderProjectListPage();
+      // 重新聚焦
+      const newInput = $('searchInput');
+      if (newInput) {
+        newInput.focus();
+        newInput.setSelectionRange(searchQuery.length, searchQuery.length);
+      }
+    });
+  }
+}
+
+function openNewProjectModal() {
+  $('newProjectName').value = '';
+  document.querySelectorAll('.ratio-option').forEach(el => el.classList.remove('selected'));
+  document.querySelector('.ratio-option[data-ratio="9:16"]').classList.add('selected');
+  $('newProjectModal').classList.add('show');
+  $('newProjectName').focus();
+}
+
+$('ratioPicker').addEventListener('click', (e) => {
+  const opt = e.target.closest('.ratio-option');
+  if (!opt) return;
+  document.querySelectorAll('.ratio-option').forEach(el => el.classList.remove('selected'));
+  opt.classList.add('selected');
+});
+
+$('createProjectBtn').addEventListener('click', () => {
+  const name = $('newProjectName').value.trim();
+  if (!name) {
+    showToast('請輸入專案名稱');
     return;
   }
+  const ratio = document.querySelector('.ratio-option.selected').dataset.ratio;
+  const newId = uid();
+  const now = Date.now();
+  db.ref(`/projects/${newId}`).set({
+    name: name,
+    ratio: ratio,
+    createdBy: currentMemberId,
+    createdAt: now,
+    updatedAt: now
+  }).then(() => {
+    closeModal('newProjectModal');
+    showToast('已建立專案');
+    navigateToProject(newId);
+  }).catch(err => showToast('建立失敗：' + err.message));
+});
+
+// ========== 分鏡頁 ==========
+function renderShotPage() {
+  if (!currentProjectId || !projects[currentProjectId]) {
+    if (isReadonly) {
+      $('appContent').innerHTML = `
+        <div class="empty-state">
+          <h3>找不到專案</h3>
+          <p>這個分享連結可能已失效</p>
+        </div>
+      `;
+      return;
+    }
+    navigateToList();
+    return;
+  }
+
   const p = projects[currentProjectId];
-  const shots = p.shots ? Object.values(p.shots) : [];
-  $('projectMeta').textContent = `${p.name} · ${p.ratio} · 共 ${shots.length} 個分鏡`;
+  const shots = getSortedShots();
+  const maker = p.createdBy ? members[p.createdBy] : null;
+  const makerName = maker ? maker.name : '無';
+
+  let html = '';
+
+  if (!isReadonly) {
+    html += `
+      <div class="back-bar">
+        <button class="btn btn-icon" id="backToListBtn">← 回專案列表</button>
+      </div>
+    `;
+  }
+
+  html += `
+    <div class="header">
+      <div class="header-left">
+        <h1>${escapeHtml(p.name)}</h1>
+        <div class="meta">${p.ratio} · ${shots.length} 個分鏡 · 建立者：${escapeHtml(makerName)}</div>
+      </div>
+      <div class="header-right">
+        ${isReadonly ? '' : `
+          <button class="btn" id="shareBtn">複製分享連結</button>
+          <button class="btn btn-danger" id="deleteProjectBtn">刪除專案</button>
+        `}
+      </div>
+    </div>
+
+    <div class="mode-bar">
+      <span class="label">檢視模式：</span>
+      <button class="mode-btn ${currentMode === 'grid' ? 'active' : ''}" data-mode="grid">分鏡表</button>
+      <button class="mode-btn ${currentMode === 'reels' ? 'active' : ''}" data-mode="reels">Reels 滑動預覽</button>
+      <span class="spacer"></span>
+      ${isReadonly ? '' : '<button class="btn btn-primary" id="addShotBtn">+ 新增分鏡</button>'}
+    </div>
+
+    <div id="shotContent"></div>
+  `;
+
+  $('appContent').innerHTML = html;
+  attachShotPageEvents();
 
   if (currentMode === 'grid') {
-    renderGrid();
+    renderShotGrid();
   } else {
     renderReels();
   }
 }
 
-// ========== 分鏡表模式 ==========
+function attachShotPageEvents() {
+  const backBtn = $('backToListBtn');
+  if (backBtn) backBtn.addEventListener('click', navigateToList);
+
+  const shareBtn = $('shareBtn');
+  if (shareBtn) shareBtn.addEventListener('click', shareProject);
+
+  const deleteBtn = $('deleteProjectBtn');
+  if (deleteBtn) deleteBtn.addEventListener('click', deleteProject);
+
+  const addShotBtn = $('addShotBtn');
+  if (addShotBtn) addShotBtn.addEventListener('click', () => openShotModal());
+
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentMode = btn.dataset.mode;
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (currentMode === 'grid') renderShotGrid();
+      else renderReels();
+    });
+  });
+}
+
 function getSortedShots() {
   const p = projects[currentProjectId];
   if (!p || !p.shots) return [];
@@ -1025,7 +1684,7 @@ function getSortedShots() {
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 }
 
-function renderGrid() {
+function renderShotGrid() {
   const p = projects[currentProjectId];
   const shots = getSortedShots();
   const ratioCss = ratioToCss(p.ratio);
@@ -1035,7 +1694,6 @@ function renderGrid() {
   shots.forEach((s, idx) => {
     const num = String(idx + 1).padStart(2, '0');
     const statusClass = 'status-' + (s.status || 'todo');
-    const statusText = statusLabel(s.status);
 
     let mediaHtml = '';
     if (s.mediaUrl) {
@@ -1061,7 +1719,7 @@ function renderGrid() {
             <circle cx="8.5" cy="8.5" r="1.5"/>
             <polyline points="21 15 16 10 5 21"/>
           </svg>
-          <span class="placeholder-text">尚未上傳</span>
+          <span style="font-size:11px;">尚未上傳</span>
         </div>`;
     }
 
@@ -1069,7 +1727,7 @@ function renderGrid() {
       <div class="shot-card" data-shot-id="${s.id}" ${isReadonly ? '' : 'draggable="true"'}>
         <div class="shot-head">
           <span class="shot-num">#${num}</span>
-          <span class="shot-status ${statusClass}">${statusText}</span>
+          <span class="shot-status ${statusClass}">${statusLabel(s.status)}</span>
         </div>
         ${mediaHtml}
         <div class="shot-title">${escapeHtml(s.title || '(未命名分鏡)')}</div>
@@ -1079,51 +1737,36 @@ function renderGrid() {
 
   if (!isReadonly) {
     html += `
-      <div class="add-card" id="addCard">
-        <div class="add-inner">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
+      <div class="add-shot-card" id="addShotCard">
+        <div class="inner">
+          <span class="plus">+</span>
           <span>新增分鏡</span>
         </div>
       </div>`;
   }
 
   html += '</div>';
-  $('content').innerHTML = html;
-
+  $('shotContent').innerHTML = html;
   attachGridEvents();
 }
 
 function attachGridEvents() {
-  // 卡片點擊
   document.querySelectorAll('.shot-card').forEach(card => {
     card.addEventListener('click', (e) => {
-      // 如果點擊媒體區塊，開放大檢視
       const mediaEl = e.target.closest('[data-action="view-media"]');
       if (mediaEl) {
         e.stopPropagation();
         viewMedia(mediaEl.dataset.shotId);
         return;
       }
-      // 否則開啟編輯
-      if (!isReadonly) {
-        openShotModal(card.dataset.shotId);
-      }
+      if (!isReadonly) openShotModal(card.dataset.shotId);
     });
 
-    // 拖拉排序
-    if (!isReadonly) {
-      attachDragEvents(card);
-    }
+    if (!isReadonly) attachDragEvents(card);
   });
 
-  // 新增按鈕
-  const addCard = $('addCard');
-  if (addCard) {
-    addCard.addEventListener('click', () => openShotModal());
-  }
+  const addCard = $('addShotCard');
+  if (addCard) addCard.addEventListener('click', () => openShotModal());
 }
 
 function attachDragEvents(card) {
@@ -1141,9 +1784,7 @@ function attachDragEvents(card) {
     e.dataTransfer.dropEffect = 'move';
     card.classList.add('drag-over');
   });
-  card.addEventListener('dragleave', () => {
-    card.classList.remove('drag-over');
-  });
+  card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
   card.addEventListener('drop', (e) => {
     e.preventDefault();
     card.classList.remove('drag-over');
@@ -1160,15 +1801,13 @@ function reorderShots(draggedId, targetId) {
   const draggedIdx = shots.findIndex(s => s.id === draggedId);
   const targetIdx = shots.findIndex(s => s.id === targetId);
   if (draggedIdx < 0 || targetIdx < 0) return;
-
   const [dragged] = shots.splice(draggedIdx, 1);
   shots.splice(targetIdx, 0, dragged);
-
-  // 寫回所有 order
   const updates = {};
   shots.forEach((s, idx) => {
     updates[`/projects/${currentProjectId}/shots/${s.id}/order`] = idx;
   });
+  updates[`/projects/${currentProjectId}/updatedAt`] = Date.now();
   db.ref().update(updates);
 }
 
@@ -1179,13 +1818,13 @@ function formatDuration(seconds) {
   return `${m}:${String(s).padStart(2,'0')}`;
 }
 
-// ========== Reels 滑動模式 ==========
+// ========== Reels 模式 ==========
 function renderReels() {
   const p = projects[currentProjectId];
   const shots = getSortedShots();
 
   if (shots.length === 0) {
-    $('content').innerHTML = `
+    $('shotContent').innerHTML = `
       <div class="empty-state">
         <h3>這個專案還沒有任何分鏡</h3>
         <p>切換到「分鏡表」模式新增第一個分鏡</p>
@@ -1222,16 +1861,13 @@ function renderReels() {
     } else {
       inner = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b4b2a9" stroke-width="1.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
     }
-    const num = String(idx + 1).padStart(2, '0');
     return `
       <div class="reels-side" data-reel-jump="${idx}">
         <div class="thumb" style="aspect-ratio: ${ratioCss};">${inner}</div>
-        <div class="label-num">#${num}</div>
+        <div class="label-num">#${String(idx + 1).padStart(2, '0')}</div>
       </div>`;
   }
 
-  const prevIdx = currentReelIndex - 1;
-  const nextIdx = currentReelIndex + 1;
   const num = String(currentReelIndex + 1).padStart(2, '0');
   const total = shots.length;
   const statusClass = 'status-' + (cur.status || 'todo');
@@ -1242,9 +1878,9 @@ function renderReels() {
   });
   progressHtml += '</div>';
 
-  $('content').innerHTML = `
+  $('shotContent').innerHTML = `
     <div class="reels-stage">
-      ${sideThumb(prev, prevIdx)}
+      ${sideThumb(prev, currentReelIndex - 1)}
       <div class="reels-main">
         <div class="reels-frame">
           <div class="reels-screen" style="aspect-ratio: ${ratioCss};">
@@ -1265,7 +1901,7 @@ function renderReels() {
         </div>
         ${progressHtml}
       </div>
-      ${sideThumb(next, nextIdx)}
+      ${sideThumb(next, currentReelIndex + 1)}
     </div>
 
     <div class="reels-info">
@@ -1274,17 +1910,11 @@ function renderReels() {
         <span class="shot-status ${statusClass}">${statusLabel(cur.status)}</span>
       </div>
       ${cur.note ? `<div class="info-note">${escapeHtml(cur.note)}</div>` : '<div class="info-note" style="color:#b4b2a9;">（無補充文字）</div>'}
-      ${isReadonly ? '' : `
-        <div style="margin-top:14px; display:flex; gap:8px; flex-wrap: wrap;">
-          <button class="btn" id="reelsPrevBtn" ${prevIdx < 0 ? 'disabled' : ''}>← 上一個</button>
-          <button class="btn" id="reelsNextBtn" ${nextIdx >= total ? 'disabled' : ''}>下一個 →</button>
-          <button class="btn btn-primary" id="reelsEditBtn">編輯這個分鏡</button>
-        </div>`}
-      ${isReadonly ? `
-        <div style="margin-top:14px; display:flex; gap:8px; flex-wrap: wrap;">
-          <button class="btn" id="reelsPrevBtn" ${prevIdx < 0 ? 'disabled' : ''}>← 上一個</button>
-          <button class="btn" id="reelsNextBtn" ${nextIdx >= total ? 'disabled' : ''}>下一個 →</button>
-        </div>` : ''}
+      <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn" id="reelsPrevBtn" ${currentReelIndex - 1 < 0 ? 'disabled' : ''}>← 上一個</button>
+        <button class="btn" id="reelsNextBtn" ${currentReelIndex + 1 >= total ? 'disabled' : ''}>下一個 →</button>
+        ${isReadonly ? '' : '<button class="btn btn-primary" id="reelsEditBtn">編輯這個分鏡</button>'}
+      </div>
     </div>
   `;
 
@@ -1314,94 +1944,34 @@ function attachReelsEvents() {
   });
 }
 
-// ========== 模式切換 ==========
-$('modeBar').addEventListener('click', (e) => {
-  const btn = e.target.closest('.mode-btn');
-  if (!btn) return;
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  currentMode = btn.dataset.mode;
-  renderProject();
-});
+// ========== 分享 / 刪除 ==========
+function shareProject() {
+  const url = `${window.location.origin}${window.location.pathname}?p=${currentProjectId}&view=readonly`;
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('唯讀分享連結已複製到剪貼簿');
+  }).catch(() => prompt('複製這個連結分享給夥伴：', url));
+}
 
-// ========== 新專案 Modal ==========
-$('newProjectBtn').addEventListener('click', () => {
-  $('newProjectName').value = '';
-  document.querySelectorAll('.ratio-option').forEach(el => el.classList.remove('selected'));
-  document.querySelector('.ratio-option[data-ratio="9:16"]').classList.add('selected');
-  $('newProjectModal').classList.add('show');
-  $('newProjectName').focus();
-});
-
-$('ratioPicker').addEventListener('click', (e) => {
-  const opt = e.target.closest('.ratio-option');
-  if (!opt) return;
-  document.querySelectorAll('.ratio-option').forEach(el => el.classList.remove('selected'));
-  opt.classList.add('selected');
-});
-
-$('createProjectBtn').addEventListener('click', () => {
-  const name = $('newProjectName').value.trim();
-  if (!name) {
-    showToast('請輸入專案名稱');
-    return;
-  }
-  const ratio = document.querySelector('.ratio-option.selected').dataset.ratio;
-  const newId = uid();
-  db.ref(`/projects/${newId}`).set({
-    name: name,
-    ratio: ratio,
-    createdAt: Date.now()
-  }).then(() => {
-    currentProjectId = newId;
-    closeModal('newProjectModal');
-    showToast('已建立專案');
-  }).catch(err => showToast('建立失敗：' + err.message));
-});
-
-// ========== 刪除專案 ==========
-$('deleteProjectBtn').addEventListener('click', () => {
-  if (!currentProjectId) return;
+async function deleteProject() {
   const p = projects[currentProjectId];
   if (!confirm(`確定要刪除「${p.name}」嗎？\n所有分鏡和影片都會被刪除，無法復原。`)) return;
 
-  // 先刪 Storage 裡的檔案
   const shots = p.shots ? Object.values(p.shots) : [];
   const deletePromises = shots
     .filter(s => s.storagePath)
     .map(s => storage.ref(s.storagePath).delete().catch(() => {}));
 
-  Promise.all(deletePromises).then(() => {
-    return db.ref(`/projects/${currentProjectId}`).remove();
-  }).then(() => {
-    currentProjectId = null;
+  try {
+    await Promise.all(deletePromises);
+    await db.ref(`/projects/${currentProjectId}`).remove();
     showToast('已刪除專案');
-  }).catch(err => showToast('刪除失敗：' + err.message));
-});
-
-// ========== 分享連結 ==========
-$('shareBtn').addEventListener('click', () => {
-  if (!currentProjectId) {
-    showToast('請先選擇一個專案');
-    return;
+    navigateToList();
+  } catch (err) {
+    showToast('刪除失敗：' + err.message);
   }
-  const url = `${window.location.origin}${window.location.pathname}?p=${currentProjectId}&view=readonly`;
-  navigator.clipboard.writeText(url).then(() => {
-    showToast('唯讀分享連結已複製到剪貼簿');
-  }).catch(() => {
-    prompt('複製這個連結分享給夥伴：', url);
-  });
-});
+}
 
-// ========== 分鏡 Modal ==========
-$('addShotBtn').addEventListener('click', () => {
-  if (!currentProjectId) {
-    showToast('請先建立或選擇一個專案');
-    return;
-  }
-  openShotModal();
-});
-
+// ========== 分鏡編輯 ==========
 function openShotModal(shotId) {
   if (!currentProjectId) return;
   editingShotId = shotId || null;
@@ -1412,7 +1982,6 @@ function openShotModal(shotId) {
   $('shotModalSub').textContent = isEdit ? '修改這個分鏡的內容' : '填寫分鏡資訊';
   $('deleteShotBtn').style.display = isEdit ? 'inline-block' : 'none';
 
-  // 重置表單
   $('shotTitle').value = '';
   $('shotNote').value = '';
   $('uploadProgress').style.display = 'none';
@@ -1432,7 +2001,6 @@ function openShotModal(shotId) {
 
       if (s.mediaUrl) {
         showPreview(s.mediaUrl, s.mediaType);
-        // 保留原本的資料，除非使用者重新上傳或清除
         pendingMediaData = {
           mediaUrl: s.mediaUrl,
           mediaType: s.mediaType,
@@ -1448,7 +2016,6 @@ function openShotModal(shotId) {
   $('shotTitle').focus();
 }
 
-// 狀態選擇器
 $('statusPicker').addEventListener('click', (e) => {
   const opt = e.target.closest('.status-option');
   if (!opt) return;
@@ -1456,8 +2023,6 @@ $('statusPicker').addEventListener('click', (e) => {
   opt.classList.add('selected');
 });
 
-// 上傳區
-$('uploadArea').addEventListener('click', () => $('fileInput').click());
 $('fileInput').addEventListener('change', handleFileUpload);
 
 async function handleFileUpload(e) {
@@ -1471,13 +2036,12 @@ async function handleFileUpload(e) {
     showToast('請選擇影片或圖片檔案');
     return;
   }
-
   if (isVideo && file.size > MAX_VIDEO_SIZE) {
-    showToast('影片過大（>20MB），請先壓縮或剪短');
+    showToast('影片過大（>100MB），請先壓縮或剪短');
     return;
   }
   if (isImage && file.size > MAX_IMAGE_SIZE) {
-    showToast('圖片過大（>5MB），請先壓縮');
+    showToast('圖片過大（>10MB），請先壓縮');
     return;
   }
 
@@ -1487,24 +2051,19 @@ async function handleFileUpload(e) {
   try {
     let uploadFile = file;
 
-    // 圖片壓縮（影片不壓縮，避免畫質損失）
     if (isImage && file.size > 1.5 * 1024 * 1024) {
       $('uploadProgress').textContent = '壓縮圖片中…';
       uploadFile = await compressImage(file);
     }
 
-    // 取得影片時長
     let duration = null;
-    if (isVideo) {
-      duration = await getVideoDuration(file);
-    }
+    if (isVideo) duration = await getVideoDuration(file);
 
-    // 上傳到 Firebase Storage
     const ext = file.name.split('.').pop().toLowerCase();
     const storagePath = `storyboard/${currentProjectId}/${uid()}.${ext}`;
     const ref = storage.ref(storagePath);
-
     const task = ref.put(uploadFile);
+
     task.on('state_changed', (snap) => {
       const pct = (snap.bytesTransferred / snap.totalBytes * 100).toFixed(0);
       $('uploadProgress').textContent = `上傳中… ${pct}%`;
@@ -1513,11 +2072,9 @@ async function handleFileUpload(e) {
     await task;
     const url = await ref.getDownloadURL();
 
-    // 如果之前有舊媒體（非編輯時保留的原檔），刪掉
     if (pendingMediaData && pendingMediaData.storagePath && !pendingMediaData.unchanged) {
       try { await storage.ref(pendingMediaData.storagePath).delete(); } catch (e) {}
     }
-    // 編輯時若使用者上傳新檔，原本的 unchanged 舊檔晚點儲存時再刪
     pendingMediaData = {
       mediaUrl: url,
       mediaType: isVideo ? 'video' : 'image',
@@ -1529,13 +2086,11 @@ async function handleFileUpload(e) {
     $('uploadProgress').style.display = 'none';
     showPreview(url, isVideo ? 'video' : 'image');
     showToast('上傳完成');
-
   } catch (err) {
     $('uploadProgress').style.display = 'none';
     showToast('上傳失敗：' + err.message);
   }
 
-  // 清空 input 讓同個檔案可再選一次
   $('fileInput').value = '';
 }
 
@@ -1554,8 +2109,7 @@ function compressImage(file) {
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
         canvas.toBlob((blob) => {
           if (blob) resolve(new File([blob], file.name, { type: 'image/jpeg' }));
           else reject(new Error('壓縮失敗'));
@@ -1593,16 +2147,13 @@ function showPreview(url, type) {
 
 $('previewClearBtn').addEventListener('click', async () => {
   if (pendingMediaData && pendingMediaData.storagePath && !pendingMediaData.unchanged) {
-    // 剛上傳的，直接刪掉 Storage 裡的檔案
     try { await storage.ref(pendingMediaData.storagePath).delete(); } catch (e) {}
   }
-  // 標記為清除（編輯時儲存才會把舊檔刪掉）
   pendingMediaData = { cleared: true, oldPath: (pendingMediaData && pendingMediaData.unchanged) ? pendingMediaData.storagePath : null };
   $('previewArea').style.display = 'none';
   $('previewContent').innerHTML = '';
 });
 
-// 儲存分鏡
 $('saveShotBtn').addEventListener('click', async () => {
   const title = $('shotTitle').value.trim();
   const note = $('shotNote').value.trim();
@@ -1616,13 +2167,11 @@ $('saveShotBtn').addEventListener('click', async () => {
   const isEdit = !!editingShotId;
   const shotId = editingShotId || uid();
 
-  // 計算 order
   let order;
   if (isEdit) {
     order = projects[currentProjectId].shots[shotId].order;
   } else {
-    const shots = getSortedShots();
-    order = shots.length;
+    order = getSortedShots().length;
   }
 
   const data = {
@@ -1630,55 +2179,54 @@ $('saveShotBtn').addEventListener('click', async () => {
     note: note,
     status: status,
     order: order,
-    updatedAt: Date.now()
+    updatedAt: Date.now(),
+    updatedBy: currentMemberId
   };
 
-  // 處理媒體
   if (pendingMediaData) {
     if (pendingMediaData.cleared) {
-      // 使用者清除了媒體
       data.mediaUrl = null;
       data.mediaType = null;
       data.storagePath = null;
       data.duration = null;
-      // 順便刪掉 Storage 裡的舊檔
       if (pendingMediaData.oldPath) {
         try { await storage.ref(pendingMediaData.oldPath).delete(); } catch (e) {}
       }
     } else if (pendingMediaData.unchanged) {
-      // 沒動過，不管它
+      // 不動
     } else {
-      // 新上傳的
       data.mediaUrl = pendingMediaData.mediaUrl;
       data.mediaType = pendingMediaData.mediaType;
       data.storagePath = pendingMediaData.storagePath;
       data.duration = pendingMediaData.duration;
-      // 把舊檔刪掉
       if (pendingMediaData.replacesOldPath) {
         try { await storage.ref(pendingMediaData.replacesOldPath).delete(); } catch (e) {}
       }
     }
   } else if (!isEdit) {
-    // 新增時沒上傳
     data.mediaUrl = null;
     data.mediaType = null;
     data.storagePath = null;
     data.duration = null;
   }
 
+  const updates = {};
   if (isEdit) {
-    db.ref(`/projects/${currentProjectId}/shots/${shotId}`).update(data)
-      .then(() => { closeModal('shotModal'); showToast('已更新分鏡'); })
-      .catch(err => showToast('儲存失敗：' + err.message));
+    Object.keys(data).forEach(k => {
+      updates[`/projects/${currentProjectId}/shots/${shotId}/${k}`] = data[k];
+    });
   } else {
     data.createdAt = Date.now();
-    db.ref(`/projects/${currentProjectId}/shots/${shotId}`).set(data)
-      .then(() => { closeModal('shotModal'); showToast('已新增分鏡'); })
-      .catch(err => showToast('儲存失敗：' + err.message));
+    data.createdBy = currentMemberId;
+    updates[`/projects/${currentProjectId}/shots/${shotId}`] = data;
   }
+  updates[`/projects/${currentProjectId}/updatedAt`] = Date.now();
+
+  db.ref().update(updates)
+    .then(() => { closeModal('shotModal'); showToast(isEdit ? '已更新分鏡' : '已新增分鏡'); })
+    .catch(err => showToast('儲存失敗：' + err.message));
 });
 
-// 刪除分鏡
 $('deleteShotBtn').addEventListener('click', async () => {
   if (!editingShotId) return;
   if (!confirm('確定要刪除這個分鏡嗎？')) return;
@@ -1687,15 +2235,16 @@ $('deleteShotBtn').addEventListener('click', async () => {
   if (s && s.storagePath) {
     try { await storage.ref(s.storagePath).delete(); } catch (e) {}
   }
-  db.ref(`/projects/${currentProjectId}/shots/${editingShotId}`).remove()
+  const updates = {};
+  updates[`/projects/${currentProjectId}/shots/${editingShotId}`] = null;
+  updates[`/projects/${currentProjectId}/updatedAt`] = Date.now();
+  db.ref().update(updates)
     .then(() => { closeModal('shotModal'); showToast('已刪除分鏡'); })
     .catch(err => showToast('刪除失敗：' + err.message));
 });
 
 // ========== Modal 通用 ==========
-function closeModal(id) {
-  $(id).classList.remove('show');
-}
+function closeModal(id) { $(id).classList.remove('show'); }
 document.querySelectorAll('[data-close-modal]').forEach(el => {
   el.addEventListener('click', () => closeModal(el.dataset.closeModal));
 });
@@ -1709,7 +2258,6 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 function viewMedia(shotId) {
   const s = projects[currentProjectId].shots[shotId];
   if (!s || !s.mediaUrl) return;
-  const ratioCss = ratioToCss(projects[currentProjectId].ratio);
   let html = '';
   if (s.mediaType === 'video') {
     html = `<video src="${escapeHtml(s.mediaUrl)}" controls autoplay playsinline style="max-width: 90vw; max-height: 80vh; display: block; border-radius: 12px; background: #000;"></video>`;
@@ -1719,6 +2267,203 @@ function viewMedia(shotId) {
   $('viewerContent').innerHTML = html;
   $('viewerModal').classList.add('show');
 }
+
+// ========== 管理成員 ==========
+function openManageMembersModal() {
+  renderMemberList();
+  renderColorPalette();
+  $('newMemberName').value = '';
+  selectedNewMemberColor = pickAvailableColor();
+  renderColorPalette();
+  $('manageMembersModal').classList.add('show');
+}
+
+function pickAvailableColor() {
+  const used = new Set(Object.values(members).map(m => m.color));
+  const available = MEMBER_COLORS.find(c => !used.has(c.id));
+  return available ? available.id : MEMBER_COLORS[0].id;
+}
+
+function renderColorPalette() {
+  $('colorPalette').innerHTML = MEMBER_COLORS.map(c => `
+    <div class="color-swatch ${c.id === selectedNewMemberColor ? 'selected' : ''}"
+         style="background:${c.bg};"
+         data-color-id="${c.id}"
+         title="${c.name}"></div>
+  `).join('');
+
+  document.querySelectorAll('.color-swatch').forEach(el => {
+    el.addEventListener('click', () => {
+      selectedNewMemberColor = el.dataset.colorId;
+      renderColorPalette();
+    });
+  });
+}
+
+function renderMemberList() {
+  const list = $('memberList');
+  const entries = Object.entries(members);
+
+  if (entries.length === 0) {
+    list.innerHTML = '<p style="font-size:13px; color:#888780; text-align:center; padding:20px 0;">還沒有成員，請從下方新增</p>';
+    return;
+  }
+
+  // 統計每個成員建立過的專案數
+  const counts = {};
+  Object.values(projects).forEach(p => {
+    if (p.createdBy) counts[p.createdBy] = (counts[p.createdBy] || 0) + 1;
+  });
+
+  list.innerHTML = entries.map(([id, m]) => {
+    const isMe = id === currentMemberId;
+    const isEditing = editingMemberId === id;
+    const c = getColor(m.color);
+    const count = counts[id] || 0;
+
+    if (isEditing) {
+      return `
+        <div class="member-row">
+          <div class="avatar avatar-md" style="background:${c.bg}; color:${c.fg};">${escapeHtml(getFirstChar(m.name))}</div>
+          <input type="text" class="edit-input" id="editMemberName_${id}" value="${escapeHtml(m.name)}" autofocus>
+          <div class="actions">
+            <button class="btn btn-sm btn-primary" data-save-member="${id}">儲存</button>
+            <button class="btn btn-sm" data-cancel-edit-member="${id}">取消</button>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="member-row ${isMe ? 'is-current' : ''}">
+        <div class="avatar avatar-md" style="background:${c.bg}; color:${c.fg};">${escapeHtml(getFirstChar(m.name))}</div>
+        <div class="info">
+          <div class="name-text">${escapeHtml(m.name)}${isMe ? ' <span style="font-size:11px; color:#888780; font-weight:400;">(目前你)</span>' : ''}</div>
+          <div class="count-text">建立過 ${count} 個專案</div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-sm" data-edit-member="${id}">編輯</button>
+          ${isMe ? '' : `<button class="btn btn-sm btn-danger" data-delete-member="${id}">刪除</button>`}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // 綁定事件
+  list.querySelectorAll('[data-edit-member]').forEach(el => {
+    el.addEventListener('click', () => {
+      editingMemberId = el.dataset.editMember;
+      renderMemberList();
+    });
+  });
+  list.querySelectorAll('[data-save-member]').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = el.dataset.saveMember;
+      const newName = $(`editMemberName_${id}`).value.trim();
+      if (!newName) { showToast('名字不能空白'); return; }
+      db.ref(`/members/${id}/name`).set(newName).then(() => {
+        editingMemberId = null;
+        showToast('已更新');
+      });
+    });
+  });
+  list.querySelectorAll('[data-cancel-edit-member]').forEach(el => {
+    el.addEventListener('click', () => {
+      editingMemberId = null;
+      renderMemberList();
+    });
+  });
+  list.querySelectorAll('[data-delete-member]').forEach(el => {
+    el.addEventListener('click', () => openDeleteMemberModal(el.dataset.deleteMember));
+  });
+}
+
+$('addMemberBtn').addEventListener('click', () => {
+  const name = $('newMemberName').value.trim();
+  if (!name) { showToast('請輸入名字'); return; }
+  const newId = uid();
+  db.ref(`/members/${newId}`).set({
+    name: name,
+    color: selectedNewMemberColor,
+    createdAt: Date.now()
+  }).then(() => {
+    $('newMemberName').value = '';
+    selectedNewMemberColor = pickAvailableColor();
+    renderColorPalette();
+    showToast('已新增成員');
+  }).catch(err => showToast('失敗：' + err.message));
+});
+
+// ========== 刪除成員 ==========
+function openDeleteMemberModal(memberId) {
+  pendingDeleteMemberId = memberId;
+  const m = members[memberId];
+  if (!m) return;
+
+  // 找他建立過的專案
+  const ownedProjects = Object.entries(projects).filter(([_, p]) => p.createdBy === memberId);
+
+  $('deleteMemberSub').textContent = `「${m.name}」建立過 ${ownedProjects.length} 個專案，要怎麼處理？`;
+
+  const otherMembers = Object.entries(members).filter(([id]) => id !== memberId);
+
+  let html = `
+    <label style="display:flex; align-items:center; gap:8px; padding:10px; border:1px solid #e8e4dc; border-radius:8px; margin-bottom:8px; cursor:pointer;">
+      <input type="radio" name="deleteAction" value="keep" checked>
+      <span style="font-size:13px;">保留專案，但顯示為「無製作者」</span>
+    </label>
+  `;
+
+  if (ownedProjects.length > 0 && otherMembers.length > 0) {
+    html += `
+      <label style="display:flex; align-items:center; gap:8px; padding:10px; border:1px solid #e8e4dc; border-radius:8px; margin-bottom:8px; cursor:pointer;">
+        <input type="radio" name="deleteAction" value="transfer">
+        <span style="font-size:13px;">轉移給：</span>
+        <select id="transferToMember" style="flex:1; padding:6px 8px; border:1px solid #d3d1c7; border-radius:6px; font-family:inherit; font-size:13px;">
+          ${otherMembers.map(([id, mm]) => `<option value="${id}">${escapeHtml(mm.name)}</option>`).join('')}
+        </select>
+      </label>
+    `;
+  }
+
+  $('deleteMemberOptions').innerHTML = html;
+  $('deleteMemberModal').classList.add('show');
+}
+
+$('confirmDeleteMemberBtn').addEventListener('click', async () => {
+  if (!pendingDeleteMemberId) return;
+  const action = document.querySelector('input[name="deleteAction"]:checked').value;
+  const updates = {};
+
+  // 找出他建立的所有專案
+  const ownedProjectIds = Object.entries(projects)
+    .filter(([_, p]) => p.createdBy === pendingDeleteMemberId)
+    .map(([id]) => id);
+
+  if (action === 'transfer') {
+    const targetId = $('transferToMember').value;
+    ownedProjectIds.forEach(pid => {
+      updates[`/projects/${pid}/createdBy`] = targetId;
+    });
+  } else {
+    // keep：把 createdBy 設為 null
+    ownedProjectIds.forEach(pid => {
+      updates[`/projects/${pid}/createdBy`] = null;
+    });
+  }
+
+  // 刪除成員
+  updates[`/members/${pendingDeleteMemberId}`] = null;
+
+  try {
+    await db.ref().update(updates);
+    pendingDeleteMemberId = null;
+    closeModal('deleteMemberModal');
+    showToast('已刪除成員');
+  } catch (err) {
+    showToast('失敗：' + err.message);
+  }
+});
 
 // ========== 啟動 ==========
 init();
