@@ -892,6 +892,105 @@ body {
 }
 .toast.show { opacity: 1; }
 
+/* ===== Reels 雙面板（單格檢視 + 連續預覽） ===== */
+.reels-stage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: 24px;
+  min-height: 0;
+}
+.reels-pane { min-width: 0; }
+.reels-pane-label {
+  font-size: 13px;
+  color: #888780;
+  text-align: center;
+  margin-bottom: 12px;
+}
+.reels-pane-cont { border-left: 1px solid #e3e0d8; }
+.reels-single-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.reels-side { width: 70px; }
+.reels-main { width: 260px; }
+.reels-overlay.has-video .reels-bottom { padding-bottom: 54px; }
+
+.cp-wrap { display: flex; flex-direction: column; align-items: center; }
+.cp-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px 12px 14px;
+}
+.cp-segments { display: flex; gap: 3px; }
+.cp-seg {
+  flex: 1;
+  height: 3px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.cp-seg .fill { height: 100%; width: 0%; background: #fff; }
+.cp-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cp-play-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+.cp-play-btn:hover { background: rgba(0,0,0,0.7); }
+.cp-wrap.playing .cp-play-btn { opacity: 0; }
+.cp-wrap.playing .cp-center:hover .cp-play-btn { opacity: 1; }
+.cp-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 8px;
+}
+.cp-bottom .reels-pill { max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cp-controls { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; justify-content: center; }
+.cp-controls .btn { padding: 6px 12px; font-size: 12px; }
+.cp-controls .btn.on { background: #2c2c2a; color: #fff; border-color: #2c2c2a; }
+.cp-meta { font-size: 11px; color: #888780; margin-top: 8px; text-align: center; }
+.cp-empty {
+  width: 260px;
+  aspect-ratio: 9 / 16;
+  max-height: 300px;
+  border: 1.5px dashed #d3d1c7;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888780;
+  font-size: 13px;
+  text-align: center;
+  padding: 20px;
+}
+@media (max-width: 860px) {
+  .reels-stage { grid-template-columns: 1fr; }
+  .reels-pane-cont { border-left: none; border-top: 1px solid #e3e0d8; padding-top: 20px; }
+}
+
 /* RWD */
 @media (max-width: 600px) {
   .app { padding: 16px 12px 40px; }
@@ -1819,7 +1918,23 @@ function formatDuration(seconds) {
 }
 
 // ========== Reels 模式 ==========
+const CP_IMAGE_SECONDS = 3;
+let cp = { list: [], durations: [], index: 0, playing: false, loop: false, muted: false, timer: null, tick: null, imgStart: 0 };
+
+function cpStop() {
+  if (cp.timer) { clearTimeout(cp.timer); cp.timer = null; }
+  if (cp.tick) { clearInterval(cp.tick); cp.tick = null; }
+  const v = $('cpVideo');
+  if (v) v.pause();
+  cp.playing = false;
+  const wrap = $('cpWrap');
+  if (wrap) wrap.classList.remove('playing');
+  const t = $('cpToggle');
+  if (t) t.textContent = '▶ 播放';
+}
+
 function renderReels() {
+  cpStop();
   const p = projects[currentProjectId];
   const shots = getSortedShots();
 
@@ -1833,6 +1948,32 @@ function renderReels() {
   }
 
   if (currentReelIndex >= shots.length) currentReelIndex = 0;
+  const ratioCss = ratioToCss(p.ratio);
+
+  $('shotContent').innerHTML = `
+    <div class="reels-stage">
+      <div class="reels-pane">
+        <div class="reels-pane-label">單格檢視</div>
+        <div id="reelsSingle"></div>
+      </div>
+      <div class="reels-pane reels-pane-cont">
+        <div class="reels-pane-label">連續預覽</div>
+        <div id="reelsCont"></div>
+      </div>
+    </div>
+    <div class="reels-info" id="reelsInfo"></div>
+  `;
+
+  renderReelsSingle();
+  initContinuousPlayer(shots, ratioCss);
+}
+
+function renderReelsSingle() {
+  const p = projects[currentProjectId];
+  const shots = getSortedShots();
+  if (!shots.length || !$('reelsSingle')) return;
+  if (currentReelIndex >= shots.length) currentReelIndex = 0;
+
   const cur = shots[currentReelIndex];
   const prev = currentReelIndex > 0 ? shots[currentReelIndex - 1] : null;
   const next = currentReelIndex < shots.length - 1 ? shots[currentReelIndex + 1] : null;
@@ -1878,14 +2019,14 @@ function renderReels() {
   });
   progressHtml += '</div>';
 
-  $('shotContent').innerHTML = `
-    <div class="reels-stage">
+  $('reelsSingle').innerHTML = `
+    <div class="reels-single-inner">
       ${sideThumb(prev, currentReelIndex - 1)}
       <div class="reels-main">
         <div class="reels-frame">
           <div class="reels-screen" style="aspect-ratio: ${ratioCss};">
             ${mainMediaHtml}
-            <div class="reels-overlay">
+            <div class="reels-overlay ${cur.mediaType === 'video' ? 'has-video' : ''}">
               <div class="reels-top">
                 <span class="reels-pill">#${num} / ${total}</span>
                 <span class="reels-pill">${statusLabel(cur.status)}</span>
@@ -1903,18 +2044,18 @@ function renderReels() {
       </div>
       ${sideThumb(next, currentReelIndex + 1)}
     </div>
+  `;
 
-    <div class="reels-info">
-      <div class="info-head">
-        <span class="info-title">分鏡 #${num}：${escapeHtml(cur.title || '(未命名分鏡)')}</span>
-        <span class="shot-status ${statusClass}">${statusLabel(cur.status)}</span>
-      </div>
-      ${cur.note ? `<div class="info-note">${escapeHtml(cur.note)}</div>` : '<div class="info-note" style="color:#b4b2a9;">（無補充文字）</div>'}
-      <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
-        <button class="btn" id="reelsPrevBtn" ${currentReelIndex - 1 < 0 ? 'disabled' : ''}>← 上一個</button>
-        <button class="btn" id="reelsNextBtn" ${currentReelIndex + 1 >= total ? 'disabled' : ''}>下一個 →</button>
-        ${isReadonly ? '' : '<button class="btn btn-primary" id="reelsEditBtn">編輯這個分鏡</button>'}
-      </div>
+  $('reelsInfo').innerHTML = `
+    <div class="info-head">
+      <span class="info-title">分鏡 #${num}：${escapeHtml(cur.title || '(未命名分鏡)')}</span>
+      <span class="shot-status ${statusClass}">${statusLabel(cur.status)}</span>
+    </div>
+    ${cur.note ? `<div class="info-note">${escapeHtml(cur.note)}</div>` : '<div class="info-note" style="color:#b4b2a9;">（無補充文字）</div>'}
+    <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="btn" id="reelsPrevBtn" ${currentReelIndex - 1 < 0 ? 'disabled' : ''}>← 上一個</button>
+      <button class="btn" id="reelsNextBtn" ${currentReelIndex + 1 >= total ? 'disabled' : ''}>下一個 →</button>
+      ${isReadonly ? '' : '<button class="btn btn-primary" id="reelsEditBtn">編輯這個分鏡</button>'}
     </div>
   `;
 
@@ -1925,23 +2066,233 @@ function attachReelsEvents() {
   document.querySelectorAll('[data-reel-jump]').forEach(el => {
     el.addEventListener('click', () => {
       currentReelIndex = parseInt(el.dataset.reelJump);
-      renderReels();
+      renderReelsSingle();
     });
   });
   const prevBtn = $('reelsPrevBtn');
   const nextBtn = $('reelsNextBtn');
   const editBtn = $('reelsEditBtn');
   if (prevBtn) prevBtn.addEventListener('click', () => {
-    if (currentReelIndex > 0) { currentReelIndex--; renderReels(); }
+    if (currentReelIndex > 0) { currentReelIndex--; renderReelsSingle(); }
   });
   if (nextBtn) nextBtn.addEventListener('click', () => {
     const shots = getSortedShots();
-    if (currentReelIndex < shots.length - 1) { currentReelIndex++; renderReels(); }
+    if (currentReelIndex < shots.length - 1) { currentReelIndex++; renderReelsSingle(); }
   });
   if (editBtn) editBtn.addEventListener('click', () => {
     const shots = getSortedShots();
     if (shots[currentReelIndex]) openShotModal(shots[currentReelIndex].id);
   });
+}
+
+// ---------- 連續預覽播放器 ----------
+function initContinuousPlayer(shots, ratioCss) {
+  cp.list = shots.map((s, i) => ({ ...s, origIndex: i })).filter(s => s.mediaUrl);
+  cp.durations = cp.list.map(s => s.mediaType === 'video' ? (s.duration || 0) : CP_IMAGE_SECONDS);
+  cp.index = 0;
+  cp.playing = false;
+
+  const el = $('reelsCont');
+  if (!el) return;
+
+  if (cp.list.length === 0) {
+    el.innerHTML = `<div class="cp-wrap"><div class="cp-empty">尚未有可播放的影片或圖片</div></div>`;
+    return;
+  }
+
+  const skipped = shots.length - cp.list.length;
+  const segs = cp.list.map((_, i) => `<div class="cp-seg" data-cp-seg="${i}"><div class="fill"></div></div>`).join('');
+
+  el.innerHTML = `
+    <div class="cp-wrap" id="cpWrap">
+      <div class="reels-main">
+        <div class="reels-frame">
+          <div class="reels-screen" style="aspect-ratio: ${ratioCss};">
+            <video id="cpVideo" playsinline preload="auto"></video>
+            <img id="cpImg" alt="" style="display:none;">
+            <div class="cp-overlay">
+              <div class="cp-segments">${segs}</div>
+              <div class="cp-center" id="cpCenter">
+                <button class="cp-play-btn" id="cpBigPlay" type="button">▶</button>
+              </div>
+              <div class="cp-bottom">
+                <span class="reels-pill" id="cpTime">#01 · 0:00 / 0:00</span>
+                <span class="reels-pill" id="cpTitle"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cp-controls">
+          <button class="btn" id="cpToggle" type="button">▶ 播放</button>
+          <button class="btn" id="cpRestart" type="button">從頭</button>
+          <button class="btn ${cp.loop ? 'on' : ''}" id="cpLoop" type="button">循環</button>
+          <button class="btn ${cp.muted ? '' : 'on'}" id="cpMute" type="button">聲音</button>
+        </div>
+        <div class="cp-meta">${cp.list.length} 段 · 圖片各停 ${CP_IMAGE_SECONDS} 秒${skipped ? ` · 略過 ${skipped} 段未上傳` : ''}</div>
+      </div>
+    </div>
+  `;
+
+  const video = $('cpVideo');
+  video.muted = cp.muted;
+
+  video.addEventListener('loadedmetadata', () => {
+    const i = cp.index;
+    if (cp.list[i] && cp.list[i].mediaType === 'video' && video.duration && isFinite(video.duration)) {
+      cp.durations[i] = video.duration;
+      cpUpdateProgress(video.currentTime);
+    }
+  });
+  video.addEventListener('timeupdate', () => {
+    if (cp.list[cp.index] && cp.list[cp.index].mediaType === 'video') cpUpdateProgress(video.currentTime);
+  });
+  video.addEventListener('ended', () => cpNext());
+  video.addEventListener('error', () => { if (cp.playing) cpNext(); });
+
+  $('cpBigPlay').addEventListener('click', (e) => { e.stopPropagation(); cpTogglePlay(); });
+  $('cpCenter').addEventListener('click', () => cpTogglePlay());
+  $('cpToggle').addEventListener('click', () => cpTogglePlay());
+  $('cpRestart').addEventListener('click', () => { cpShow(0); cpPlay(); });
+  $('cpLoop').addEventListener('click', () => {
+    cp.loop = !cp.loop;
+    $('cpLoop').classList.toggle('on', cp.loop);
+  });
+  $('cpMute').addEventListener('click', () => {
+    cp.muted = !cp.muted;
+    video.muted = cp.muted;
+    $('cpMute').classList.toggle('on', !cp.muted);
+  });
+  el.querySelectorAll('[data-cp-seg]').forEach(seg => {
+    seg.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const wasPlaying = cp.playing;
+      cpShow(parseInt(seg.dataset.cpSeg));
+      if (wasPlaying) cpPlay();
+    });
+  });
+
+  cpShow(0);
+}
+
+function cpTogglePlay() {
+  if (cp.playing) cpPause(); else cpPlay();
+}
+
+function cpShow(i) {
+  if (i < 0 || i >= cp.list.length) return;
+  if (cp.timer) { clearTimeout(cp.timer); cp.timer = null; }
+  if (cp.tick) { clearInterval(cp.tick); cp.tick = null; }
+
+  cp.index = i;
+  const s = cp.list[i];
+  const video = $('cpVideo');
+  const img = $('cpImg');
+  if (!video || !img) return;
+
+  if (s.mediaType === 'video') {
+    img.style.display = 'none';
+    img.src = '';
+    video.style.display = 'block';
+    if (video.getAttribute('src') !== s.mediaUrl) {
+      video.src = s.mediaUrl;
+      video.load();
+    } else {
+      video.currentTime = 0;
+    }
+  } else {
+    video.pause();
+    video.style.display = 'none';
+    img.src = s.mediaUrl;
+    img.style.display = 'block';
+  }
+
+  $('cpTitle').textContent = s.title || '';
+  cpUpdateProgress(0);
+
+  // 左邊單格同步跟著走
+  if (currentReelIndex !== s.origIndex) {
+    currentReelIndex = s.origIndex;
+    renderReelsSingle();
+  }
+
+  if (cp.playing) cpStartCurrent();
+}
+
+function cpStartCurrent() {
+  const s = cp.list[cp.index];
+  const video = $('cpVideo');
+  if (!s || !video) return;
+
+  if (s.mediaType === 'video') {
+    const tryPlay = video.play();
+    if (tryPlay && tryPlay.catch) {
+      tryPlay.catch(() => {
+        // 若瀏覽器擋有聲自動播放，改靜音再試
+        video.muted = true;
+        cp.muted = true;
+        const m = $('cpMute'); if (m) m.classList.remove('on');
+        video.play().catch(() => cpNext());
+      });
+    }
+  } else {
+    cp.imgStart = Date.now();
+    cp.tick = setInterval(() => {
+      const t = (Date.now() - cp.imgStart) / 1000;
+      cpUpdateProgress(Math.min(t, CP_IMAGE_SECONDS));
+    }, 100);
+    cp.timer = setTimeout(() => cpNext(), CP_IMAGE_SECONDS * 1000);
+  }
+}
+
+function cpPlay() {
+  if (!cp.list.length) return;
+  cp.playing = true;
+  const wrap = $('cpWrap'); if (wrap) wrap.classList.add('playing');
+  const t = $('cpToggle'); if (t) t.textContent = '❚❚ 暫停';
+  cpStartCurrent();
+}
+
+function cpPause() {
+  cp.playing = false;
+  if (cp.timer) { clearTimeout(cp.timer); cp.timer = null; }
+  if (cp.tick) { clearInterval(cp.tick); cp.tick = null; }
+  const video = $('cpVideo'); if (video) video.pause();
+  const wrap = $('cpWrap'); if (wrap) wrap.classList.remove('playing');
+  const t = $('cpToggle'); if (t) t.textContent = '▶ 播放';
+}
+
+function cpNext() {
+  if (!cp.playing) return;
+  const nextIdx = cp.index + 1;
+  if (nextIdx < cp.list.length) {
+    cpShow(nextIdx);
+  } else if (cp.loop) {
+    cpShow(0);
+  } else {
+    cpUpdateProgress(cp.durations[cp.index] || 0);
+    cpPause();
+  }
+}
+
+function cpUpdateProgress(curSec) {
+  const segs = document.querySelectorAll('[data-cp-seg]');
+  if (!segs.length) return;
+  const d = cp.durations[cp.index] || 0;
+  const pct = d > 0 ? Math.min(100, (curSec / d) * 100) : 0;
+  segs.forEach((seg, j) => {
+    const fill = seg.querySelector('.fill');
+    if (j < cp.index) fill.style.width = '100%';
+    else if (j === cp.index) fill.style.width = pct + '%';
+    else fill.style.width = '0%';
+  });
+
+  let elapsed = 0;
+  for (let j = 0; j < cp.index; j++) elapsed += cp.durations[j] || 0;
+  elapsed += curSec;
+  const total = cp.durations.reduce((a, b) => a + (b || 0), 0);
+  const num = String(cp.list[cp.index].origIndex + 1).padStart(2, '0');
+  const timeEl = $('cpTime');
+  if (timeEl) timeEl.textContent = `#${num} · ${formatDuration(elapsed)} / ${formatDuration(total)}`;
 }
 
 // ========== 分享 / 刪除 ==========
